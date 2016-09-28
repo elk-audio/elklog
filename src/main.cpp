@@ -18,8 +18,7 @@
 #include "options.h"
 
 #include "public_header.h"
-
-using namespace mind;
+#include "mylib.h"
 
 
 int main(int argc, char* argv[])
@@ -56,6 +55,9 @@ int main(int argc, char* argv[])
         return 0;
     }
 
+    std::string log_level = std::string(PROJECT_TEMPLATE_LOG_LEVEL_DEFAULT);
+    std::string log_filename = std::string(PROJECT_TEMPLATE_LOG_FILENAME_DEFAULT);
+
     int project_template_numeric_arg = PROJECT_TEMPLATE_NUMERIC_ARG_DEFAULT;
     std::string project_template_string_arg = std::string(PROJECT_TEMPLATE_STRING_ARG_DEFAULT);
     for (int i=0; i<cl_parser.optionsCount(); i++)
@@ -67,6 +69,14 @@ int main(int argc, char* argv[])
         case OPT_IDX_UNKNOWN:
             // should be handled before arriving here
             assert(false);
+            break;
+
+        case OPT_IDX_LOG_LEVEL:
+            log_level.assign(opt.arg);
+            break;
+
+        case OPT_IDX_LOG_FILE:
+            log_filename.assign(opt.arg);
             break;
 
         case OPT_IDX_PROJECT_TEMPLATE_NUMERIC_ARG:
@@ -95,7 +105,12 @@ int main(int argc, char* argv[])
     ////////////////////////////////////////////////////////////////////////////////
     // Logger configuration
     ////////////////////////////////////////////////////////////////////////////////
-    MIND_LOG_SET_PARAMS("template_log", "Logger", MIND_LOG_LEVEL_DEBUG);
+    auto ret_code = MIND_LOG_SET_PARAMS(log_filename, "Logger", log_level);
+    if (ret_code != MIND_LOG_ERROR_CODE_OK)
+    {
+        fprintf(stderr, "%s, using default.\n", MIND_LOG_GET_ERROR_MESSAGE(ret_code).c_str());
+    }
+
     MIND_GET_LOGGER;
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -105,6 +120,9 @@ int main(int argc, char* argv[])
     std::cout << "Starting with arguments:" << std::endl;
     std::cout << "Numeric: " << project_template_numeric_arg << std::endl;
     std::cout << "String: " << project_template_string_arg << std::endl;
+
+    mylib::MyClass c;
+    std::cout << "Calling a library function that returns: " << c.get_message() << std::endl;
 
     // Log something
     MIND_LOG_INFO("I'm logging at INFO level");

@@ -1,5 +1,5 @@
 # build gtest framework
-add_subdirectory(gtest_1_7_0)
+add_subdirectory(googletest)
 enable_testing()
 
 #####################################
@@ -19,7 +19,7 @@ SET(TEST_FILES unittests/sample_test.cpp)
 ##########################################
 
 set(INCLUDE_DIRS "${INCLUDE_DIRS}"
-                 ${PROJECT_SOURCE_DIR}/test/gtest_1_7_0/include)
+                 ${PROJECT_SOURCE_DIR}/test/googletest/include)
 
 include_directories(${INCLUDE_DIRS})
 

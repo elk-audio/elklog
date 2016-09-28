@@ -42,6 +42,7 @@ set(SOURCE_FILES "${COMPILATION_UNITS}" "${EXTRA_CLION_SOURCES}")
 #########################
 
 set(INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/src"
+                 "${PROJECT_SOURCE_DIR}/src/libs"
                  "${PROJECT_SOURCE_DIR}/include"
                  "${PROJECT_SOURCE_DIR}/third-party/optionparser/"
                  "${PROJECT_SOURCE_DIR}/third-party")
@@ -80,9 +81,8 @@ add_subdirectory(test)
 #  Target Objects  #
 ####################
 
-add_executable(project_template ${SOURCE_FILES})
+add_library(mylib ${PROJECT_SOURCE_DIR}/src/libs/mylib.cpp)
 
-# Explicitly add external statically linked dependencies here,
-# example:
-# add_dependencies(project_template static_library)
-# target_link_libraries(project_template "${LINK_LIBRARIES}")
+add_executable(project_template ${SOURCE_FILES})
+target_link_libraries(project_template PRIVATE mylib pthread)
+

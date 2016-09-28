@@ -29,24 +29,13 @@
 #define ENABLE_DEBUG_FILE_AND_LINE_NUM
 
 /* Use this macro  at the top of every file to declare a local logger */
-#define MIND_GET_LOGGER static auto spdlog_instance = Logger::get_logger()
+#define MIND_GET_LOGGER static auto spdlog_instance = mind::Logger::get_logger()
 
 #ifdef ENABLE_DEBUG_FILE_AND_LINE_NUM
     #define MIND_EXTENDED_LOG << " (" << __FILE__ << " @" << __LINE__ <<")"
 #else
     #define MIND_EXTENDED_LOG
 #endif
-
-/*
- * Wrappers to subset of spdlog level declaration
- */
-
-#define MIND_LOG_LEVEL_DEBUG    (spdlog::level::debug)
-#define MIND_LOG_LEVEL_INFO     (spdlog::level::info)
-#define MIND_LOG_LEVEL_WARNING  (spdlog::level::warn)
-#define MIND_LOG_LEVEL_ERROR    (spdlog::level::error)
-#define MIND_LOG_LEVEL_CRITICAL (spdlog::level::critical)
-
 
 /*
  * Use these macros to log messages. Use cppformat style, ie:
@@ -62,12 +51,29 @@
 #define MIND_LOG_ERROR(...)    spdlog_instance->error(__VA_ARGS__)
 #define MIND_LOG_CRITICAL(...) spdlog_instance->crit(__VA_ARGS__)
 
+
+/** Error codes returned by set_logger_params
+ */
+enum MIND_LOG_ERROR_CODE
+{
+    MIND_LOG_ERROR_CODE_OK = 0,
+    MIND_LOG_ERROR_CODE_INVALID_LOG_LEVEL = 1,
+};
+
 /*
  * Call this _before_ instantiating any object that use MIND_GET_LOGGER
  * to change default log parameters, i.e. inside main()
+ *
+ * See help of Logger::set_logger_params for more details
  */
 #define MIND_LOG_SET_PARAMS(FILE_NAME, LOGGER_NAME, MIN_LOG_LEVEL) \
     mind::Logger::set_logger_params(FILE_NAME, LOGGER_NAME, MIN_LOG_LEVEL)
+
+
+#define MIND_LOG_GET_ERROR_MESSAGE(retcode) \
+    mind::Logger::get_error_message(retcode)
+
+
 
 namespace mind {
 
@@ -76,11 +82,28 @@ class Logger
 public:
     static std::shared_ptr<spdlog::logger> get_logger();
 
-    // TODO:
-    //      add other logging options, like e.g. logger type, max file size, etc.
-    static void set_logger_params(const std::string file_name,
-                                  const std::string logger_name,
-                                  const spdlog::level::level_enum _min_log_level);
+    /**
+     * @brief Configure logger parameters. This must be called before instantiating
+     *        any object that use MIND_GET_LOGGER, e.g. at beginning of main.
+     *
+     * @param file_name Name of file used to append logs (without extension)
+     * @param logger_name Internal name of the logger
+     * @param min_log_level Minimum logging level, one of ('debug', 'info', 'warning', 'error', 'critical')
+     *
+     * @returns Error code, use MIND_LOG_ERROR_MESSAGES to retrieve the message
+     *
+     * @todo add other logging options, like e.g. logger type, max file size, etc.
+     * @todo Check arguments and e.g. return errors
+     */
+    static MIND_LOG_ERROR_CODE set_logger_params(const std::string file_name,
+                                                  const std::string logger_name,
+                                                  const std::string min_log_level);
+
+
+    /**
+     * @brief Get string message from error code returned by set_logger_params
+     */
+    static std::string get_error_message(MIND_LOG_ERROR_CODE status);
 
     static std::string logger_file_name()
     {

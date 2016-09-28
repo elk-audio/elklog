@@ -5,6 +5,9 @@
 // Options Defaults
 ////////////////////////////////////////////////////////////////////////////////
 
+#define PROJECT_TEMPLATE_LOG_LEVEL_DEFAULT "info"
+#define PROJECT_TEMPLATE_LOG_FILENAME_DEFAULT "log"
+
 #define PROJECT_TEMPLATE_NUMERIC_ARG_DEFAULT_STR "47"
 #define PROJECT_TEMPLATE_NUMERIC_ARG_DEFAULT 47
 #define PROJECT_TEMPLATE_STRING_ARG_DEFAULT "foo"
@@ -74,6 +77,8 @@ enum OptionIndex
 { 
     OPT_IDX_UNKNOWN,
     OPT_IDX_HELP,
+    OPT_IDX_LOG_LEVEL,
+    OPT_IDX_LOG_FILE,
     OPT_IDX_PROJECT_TEMPLATE_NUMERIC_ARG,
     OPT_IDX_PROJECT_TEMPLATE_STRING_ARG
 };
@@ -91,7 +96,7 @@ const option::Descriptor usage[] =
 {
     {
         OPT_IDX_UNKNOWN,    // index
-        OPT_TYPE_UNUSED,          // type
+        OPT_TYPE_UNUSED,    // type
         "",         // shortopt
         "",         // longopt
         ProjectTemplateArg::Unknown, // check_arg
@@ -104,6 +109,22 @@ const option::Descriptor usage[] =
         "help",
         ProjectTemplateArg::None,
         "\t\t-h --help \tPrint usage and exit."
+    },
+    {
+        OPT_IDX_LOG_LEVEL,
+        OPT_TYPE_UNUSED,
+        "l",
+        "log-level",
+        ProjectTemplateArg::NonEmpty,
+        "\t\t-l <level>, --log-level=<level> \tSpecify minimum logging level, from ('debug', 'info', 'warning', 'error') [default=" PROJECT_TEMPLATE_LOG_LEVEL_DEFAULT "]."
+    },
+    {
+        OPT_IDX_LOG_FILE,
+        OPT_TYPE_UNUSED,
+        "L",
+        "log-file",
+        ProjectTemplateArg::NonEmpty,
+        "\t\t-L <filename>, --log-file=<filename> \tSpecify logging file [default=" PROJECT_TEMPLATE_LOG_FILENAME_DEFAULT "]."
     },
     {
         OPT_IDX_PROJECT_TEMPLATE_NUMERIC_ARG,
