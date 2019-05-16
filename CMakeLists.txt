@@ -1,25 +1,21 @@
-cmake_minimum_required(VERSION 2.8)
-project(project_template)
+cmake_minimum_required(VERSION 3.2)
+project(project_template LANGUAGES CXX)
 
-####################
-#  Compiler Flags  #
-####################
+###################
+#  Build options  #
+###################
 
-# Global flags
-set(PROJECT_CXX_FLAGS "-Wall -Wextra -std=c++14 -fno-rtti")
-set(PROJECT_LINK_FLAGS "")
+option(WITH_UNIT_TESTS "Build and run unit tests after compilation" ON)
 
-# Platform specific stuff
-if (APPLE)
-    set(PROJECT_LINK_FLAGS "${PROJECT_LINK_FLAGS} -framework IOKit -framework CoreFoundation")
-endif()
+#########################
+#  Include Directories  #
+#########################
 
-# Build optimization flags
-set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O3")
-set(CMAKE_CXX_FLAGS_DEBUG   "-DDEBUG -O0 -g")
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${PROJECT_CXX_FLAGS}")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${PROJECT_LINK_FLAGS}")
+set(INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/src"
+                 "${PROJECT_SOURCE_DIR}/src/libs"
+                 "${PROJECT_SOURCE_DIR}/include"
+                 "${PROJECT_SOURCE_DIR}/third-party/optionparser/"
+                 "${PROJECT_SOURCE_DIR}/third-party")
 
 ##################
 #  Source Files  #
@@ -37,43 +33,12 @@ set(EXTRA_CLION_SOURCES include/public_header.h
 
 set(SOURCE_FILES "${COMPILATION_UNITS}" "${EXTRA_CLION_SOURCES}")
 
-#########################
-#  Include Directories  #
-#########################
-
-set(INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/src"
-                 "${PROJECT_SOURCE_DIR}/src/libs"
-                 "${PROJECT_SOURCE_DIR}/include"
-                 "${PROJECT_SOURCE_DIR}/third-party/optionparser/"
-                 "${PROJECT_SOURCE_DIR}/third-party")
-
-# /usr/local doesn't get added by default in Mac OS X
-if (APPLE)
-    set(INCLUDE_DIRS "${INCLUDE_DIRS}" /usr/local/include)
-endif()
-
-include_directories(${INCLUDE_DIRS})
-
-#################################
-#  Statically linked libraries  #
-#################################
-
-# Eventually define here the CMake var
-# LINK_LIBRARIES
-# to point to statically linked libraries,
-# example:
-
-# set(LINK_LIBRARIES "${PROJECT_SOURCE_DIR}/third-party/install/static_library/lib/libstaticlibrary.a"
-#                    pthread)
- 
-if (APPLE)
-    link_directories(/usr/local/lib)
-endif()
 
 #############################################
 #  Subdirectory projects                    #
 #############################################
 
+add_subdirectory(libs)
 add_subdirectory(third-party)
 add_subdirectory(test)
 
@@ -81,8 +46,8 @@ add_subdirectory(test)
 #  Target Objects  #
 ####################
 
-add_library(mylib ${PROJECT_SOURCE_DIR}/src/libs/mylib.cpp)
-
 add_executable(project_template ${SOURCE_FILES})
+target_include_directories(project_template PRIVATE ${INCLUDE_DIRS})
 target_link_libraries(project_template PRIVATE mylib pthread)
+target_compile_features(project_template PUBLIC cxx_std_17)
 
