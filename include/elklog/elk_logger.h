@@ -32,16 +32,16 @@
 #include "spdlog/async.h"
 #include "spdlog/spdlog.h"
 
-#include "aloha_version.h"
+//#include "aloha_version.h"
 #include "rtlogger.h"
 
-namespace aloha {
+namespace elklog {
 
 constexpr int RTLOG_MESSAGE_SIZE = 2048;
 constexpr int RTLOG_QUEUE_SIZE = 1024;
 constexpr int MAX_LOG_FILE_SIZE = 10'000'000;   // In bytes
 
-class AlohaLogger
+class ElkLogger
 {
 public:
     enum class TYPE
@@ -56,23 +56,23 @@ public:
      *        initialize() which should be called after and check for
      *        error codes.
      *
-     * @param instance_counter Plugin instance counter (used in log lines)
+     * @param instance_id Id used to differentiate between logger instances (used in log lines)
      * @param min_log_level Minimum logging level (debug, info, warning, error)
      * @param logger_type Choose between TYPE::TEXT (default), and JSON.
      */
-    AlohaLogger(int instance_counter,
-                const std::string& min_log_level,
-                TYPE logger_type = TYPE::TEXT) :
-        _instance_counter(instance_counter),
-        _min_log_level(min_log_level),
-        _type(logger_type)
+    ElkLogger(int instance_id,
+              const std::string& min_log_level,
+              TYPE logger_type = TYPE::TEXT) :
+            _instance_id(instance_id),
+            _min_log_level(min_log_level),
+            _type(logger_type)
     {
         _rt_logger = std::make_unique<RtLogger<RTLOG_MESSAGE_SIZE, RTLOG_QUEUE_SIZE>>(50,
-                std::bind(&AlohaLogger::_rt_logger_callback, this, std::placeholders::_1),
+                std::bind(&ElkLogger::_rt_logger_callback, this, std::placeholders::_1),
                 min_log_level);
     }
 
-    virtual ~AlohaLogger()
+    virtual ~ElkLogger()
     {
         close_log();
 
@@ -91,7 +91,7 @@ public:
      *         for a human-readable output error string.
      */
     LogErrorCode initialize(const std::string& log_file_path,
-                            const std::string& logger_name = "\"aloha_logger_{0}\"",
+                            const std::string& logger_name = "\"elk_logger_{0}\"",
                             bool drop_logger_if_duplicate = false,
                             int max_files = 1)
     {
@@ -116,7 +116,7 @@ public:
         auto log_level = level_map[log_level_lowercase];
         spdlog::set_level(log_level);
         spdlog::flush_on(log_level);
-        std::string logger_name_w_instance = fmt::format(logger_name, _instance_counter);
+        std::string logger_name_w_instance = fmt::format(logger_name, _instance_id);
 
         if (drop_logger_if_duplicate)
         {
@@ -163,12 +163,12 @@ public:
 
             _logger_instance->warn("#################################################");
             _logger_instance->warn("           Aloha RT plugin started! ");
-            _logger_instance->warn("Alohalib v{}.{}.{}, built: {}",
-                                   ALOHALIB__VERSION_MAJ,
+            /*_logger_instance->warn("Alohalib v{}.{}.{}, built: {}",
+                      /*             ALOHALIB__VERSION_MAJ,
                                    ALOHALIB__VERSION_MIN,
                                    ALOHALIB__VERSION_REV,
                                    ALOHALIB_BUILD_TIMESTAMP);
-            _logger_instance->warn("Commit: {}", ALOHALIB_GIT_COMMIT_HASH);
+            _logger_instance->warn("Commit: {}", ALOHALIB_GIT_COMMIT_HASH); */
             _logger_instance->warn("#################################################");
         }
 
@@ -305,7 +305,7 @@ private:
         }
     }
 
-    int _instance_counter;
+    int _instance_id;
     std::string _min_log_level;
     std::string _log_file_path;
     std::shared_ptr<spdlog::logger> _logger_instance;

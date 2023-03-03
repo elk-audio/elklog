@@ -4,3 +4,6 @@
 [submodule "third-party/spdlog"]
 	path = third-party/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "twine"]
+	path = twine
+	url = git@github.com:elk-audio/twine.git

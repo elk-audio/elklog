@@ -23,7 +23,7 @@
 
 /* log macros */
 #ifndef DISABLE_LOGGING
-#include "spdlog/spdlog.h"
+#include "elklog/elk_logger.h"
 
 /* Add file and line numbers to debug prints */
 #define ENABLE_DEBUG_FILE_AND_LINE_NUM

@@ -9,7 +9,7 @@
 
 #include <ostream>
 
-namespace aloha {
+namespace elklog {
 
 enum class RtLogLevel : int
 {

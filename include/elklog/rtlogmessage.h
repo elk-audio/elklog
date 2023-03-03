@@ -16,7 +16,7 @@
 
 #include "rtloglevel.h"
 
-namespace aloha {
+namespace elklog {
 
 template<size_t buffer_len>
 class RtLogMessage

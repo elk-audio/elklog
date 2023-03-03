@@ -27,7 +27,7 @@
 
 #include "twine/twine.h"
 
-namespace aloha
+namespace elklog
 {
 
 template<size_t message_len, size_t fifo_size>
