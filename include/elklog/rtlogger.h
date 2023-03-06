@@ -4,7 +4,7 @@
  *
  *        Not safe to log messages from multiple RT threads at the same time.
  *
- * @copyright Modern Ancient Instruments Networked AB, dba Elk
+ * @copyright Copyright 2017-2023 Elk AB, Stockholm
  */
 
 #ifndef RT_LOGGER_H

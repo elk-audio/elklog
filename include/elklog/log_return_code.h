@@ -1,7 +1,7 @@
 /**
  * @brief Log initialization return codes
  *
- * @copyright Modern Ancient Instruments Networked AB, dba Elk
+ * @copyright Copyright 2017-2023 Elk AB, Stockholm
  */
 
 #ifndef LOG_RETURN_CODE_H

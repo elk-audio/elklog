@@ -1,7 +1,7 @@
 /**
  * @brief RT-safe class to pass around Log Messages
  *
- * @copyright Modern Ancient Instruments Networked AB, dba Elk
+ * @copyright Copyright 2017-2023 Elk AB, Stockholm
  */
 
 #ifndef RTLOGMESSAGE_H

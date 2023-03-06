@@ -32,7 +32,6 @@
 #include "spdlog/async.h"
 #include "spdlog/spdlog.h"
 
-//#include "aloha_version.h"
 #include "rtlogger.h"
 
 namespace elklog {
@@ -56,16 +55,13 @@ public:
      *        initialize() which should be called after and check for
      *        error codes.
      *
-     * @param instance_id Id used to differentiate between logger instances (used in log lines)
      * @param min_log_level Minimum logging level (debug, info, warning, error)
      * @param logger_type Choose between TYPE::TEXT (default), and JSON.
      */
-    ElkLogger(int instance_id,
-              const std::string& min_log_level,
+    ElkLogger(const std::string& min_log_level,
               TYPE logger_type = TYPE::TEXT) :
-            _instance_id(instance_id),
-            _min_log_level(min_log_level),
-            _type(logger_type)
+             _min_log_level(min_log_level),
+             _type(logger_type)
     {
         _rt_logger = std::make_unique<RtLogger<RTLOG_MESSAGE_SIZE, RTLOG_QUEUE_SIZE>>(50,
                 std::bind(&ElkLogger::_rt_logger_callback, this, std::placeholders::_1),
@@ -91,7 +87,8 @@ public:
      *         for a human-readable output error string.
      */
     LogErrorCode initialize(const std::string& log_file_path,
-                            const std::string& logger_name = "\"elk_logger_{0}\"",
+                            const std::string& logger_name = "\"elk_logger",
+                            std::chrono::seconds flush_interval = std::chrono::seconds(0),
                             bool drop_logger_if_duplicate = false,
                             int max_files = 1)
     {
@@ -107,7 +104,10 @@ public:
         std::string log_level_lowercase = _min_log_level;
         std::transform(_min_log_level.begin(), _min_log_level.end(), log_level_lowercase.begin(), ::tolower);
 
-        spdlog::flush_every(std::chrono::seconds(1));
+        if (flush_interval.count() > 0)
+        {
+            spdlog::flush_every(std::chrono::seconds(flush_interval));
+        }
 
         if (level_map.count(log_level_lowercase) <= 0)
         {
@@ -116,19 +116,18 @@ public:
         auto log_level = level_map[log_level_lowercase];
         spdlog::set_level(log_level);
         spdlog::flush_on(log_level);
-        std::string logger_name_w_instance = fmt::format(logger_name, _instance_id);
 
         if (drop_logger_if_duplicate)
         {
-            auto possible_logger = spdlog::get(logger_name_w_instance);
+            auto possible_logger = spdlog::get(logger_name);
 
             if (possible_logger.get() != nullptr)
             {
-                spdlog::drop(logger_name_w_instance);
+                spdlog::drop(logger_name);
             }
         }
 
-        _logger_instance = spdlog::rotating_logger_mt<spdlog::async_factory>(logger_name_w_instance,
+        _logger_instance = spdlog::rotating_logger_mt<spdlog::async_factory>(logger_name,
                                                                              log_file_path,
                                                                              MAX_LOG_FILE_SIZE,
                                                                              max_files,
@@ -160,16 +159,7 @@ public:
         else
         {
             _logger_instance->set_pattern("[%Y-%m-%d %T.%e] [%l] %v");
-
-            _logger_instance->warn("#################################################");
-            _logger_instance->warn("           Aloha RT plugin started! ");
-            /*_logger_instance->warn("Alohalib v{}.{}.{}, built: {}",
-                      /*             ALOHALIB__VERSION_MAJ,
-                                   ALOHALIB__VERSION_MIN,
-                                   ALOHALIB__VERSION_REV,
-                                   ALOHALIB_BUILD_TIMESTAMP);
-            _logger_instance->warn("Commit: {}", ALOHALIB_GIT_COMMIT_HASH); */
-            _logger_instance->warn("#################################################");
+            _logger_instance->info("Logger {}, \"status\": \"Started\"", logger_name);
         }
 
         return LogErrorCode::OK;
@@ -305,7 +295,6 @@ private:
         }
     }
 
-    int _instance_id;
     std::string _min_log_level;
     std::string _log_file_path;
     std::shared_ptr<spdlog::logger> _logger_instance;

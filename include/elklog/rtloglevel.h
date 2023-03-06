@@ -1,7 +1,7 @@
 /**
  * @brief RT-logger levels
  *
- * @copyright Modern Ancient Instruments Networked AB, dba Elk
+ * @copyright Copyright 2017-2023 Elk AB, Stockholm
  */
 
 #ifndef RTLOGLEVEL_H
