@@ -56,7 +56,7 @@ enum ELKLOG_LOG_ERROR_CODE
 
 /* log macros */
 #ifndef ELKLOG_DISABLE_LOGGING
-#include "spdlog/spdlog.h"
+//#include "spdlog/spdlog.h"
 
 /* Add file and line numbers to debug prints, disabled by default */
 //#define ELKLOG_ENABLE_DEBUG_FILE_AND_LINE_NUM
@@ -76,22 +76,22 @@ enum ELKLOG_LOG_ERROR_CODE
 #ifdef ELKLOG_ENABLE_DEBUG_FILE_AND_LINE_NUM
 #define ELKLOG_LOG_DEBUG(msg, ...) spdlog_instance->debug("{}" msg " - [@{} #{}]", ##__VA_ARGS__, __FILE__ , __LINE__)
 #else
-#define ELKLOG_LOG_DEBUG(msg, ...)         elk::Logger::logger_instance->debug("{}" msg, local_log_prefix, ##__VA_ARGS__)
+#define ELKLOG_LOG_DEBUG(msg, ...)         elklog::Logger::logger_instance->debug("{}" msg, local_log_prefix, ##__VA_ARGS__)
 #endif
-#define ELKLOG_LOG_INFO(msg, ...)          elk::Logger::logger_instance->info("{}" msg, local_log_prefix, ##__VA_ARGS__)
-#define ELKLOG_LOG_WARNING(msg, ...)       elk::Logger::logger_instance->warn("{}" msg, local_log_prefix, ##__VA_ARGS__)
-#define ELKLOG_LOG_ERROR(msg, ...)         elk::Logger::logger_instance->error("{}" msg, local_log_prefix, ##__VA_ARGS__)
-#define ELKLOG_LOG_CRITICAL(msg, ...)      elk::Logger::logger_instance->critical("{}" msg, local_log_prefix, ##__VA_ARGS__)
+#define ELKLOG_LOG_INFO(msg, ...)          elklog::Logger::logger_instance->info("{}" msg, local_log_prefix, ##__VA_ARGS__)
+#define ELKLOG_LOG_WARNING(msg, ...)       elklog::Logger::logger_instance->warning("{}" msg, local_log_prefix, ##__VA_ARGS__)
+#define ELKLOG_LOG_ERROR(msg, ...)         elklog::Logger::logger_instance->error("{}" msg, local_log_prefix, ##__VA_ARGS__)
+#define ELKLOG_LOG_CRITICAL(msg, ...)      elklog::Logger::logger_instance->critical("{}" msg, local_log_prefix, ##__VA_ARGS__)
 
 #ifdef ELKLOG_ENABLE_DEBUG_FILE_AND_LINE_NUM
-#define ELKLOG_LOG_DEBUG_IF(condition, msg, ...) if (condition) { elk::Logger::logger_instance->debug_if(condition, "{}" msg " - [@{} #{}]", ##__VA_ARGS__, __FILE__ , __LINE__); }
+#define ELKLOG_LOG_DEBUG_IF(condition, msg, ...) if (condition) { elklog::Logger::logger_instance->debug_if(condition, "{}" msg " - [@{} #{}]", ##__VA_ARGS__, __FILE__ , __LINE__); }
 #else
-#define ELKLOG_LOG_DEBUG_IF(condition, msg, ...)    if (condition) { elk::Logger::logger_instance->debug(condition, "{}" msg, local_log_prefix, ##__VA_ARGS__); }
+#define ELKLOG_LOG_DEBUG_IF(condition, msg, ...)    if (condition) { elklog::Logger::logger_instance->debug(condition, "{}" msg, local_log_prefix, ##__VA_ARGS__); }
 #endif
-#define ELKLOG_LOG_INFO_IF(condition, msg, ...)     if (condition) { elk::Logger::logger_instance->info("{}" msg, local_log_prefix, ##__VA_ARGS__); }
-#define ELKLOG_LOG_WARNING_IF(condition, msg, ...)  if (condition) { elk::Logger::logger_instance->warn("{}" msg, local_log_prefix, ##__VA_ARGS__); }
-#define ELKLOG_LOG_ERROR_IF(condition, msg, ...)    if (condition) { elk::Logger::logger_instance->error("{}" msg, local_log_prefix, ##__VA_ARGS__); }
-#define ELKLOG_LOG_CRITICAL_IF(condition, msg, ...) if (condition) { elk::Logger::logger_instance->critical("{}" msg, local_log_prefix, ##__VA_ARGS__); }
+#define ELKLOG_LOG_INFO_IF(condition, msg, ...)     if (condition) { elklog::Logger::logger_instance->info("{}" msg, local_log_prefix, ##__VA_ARGS__); }
+#define ELKLOG_LOG_WARNING_IF(condition, msg, ...)  if (condition) { elklog::Logger::logger_instance->warning("{}" msg, local_log_prefix, ##__VA_ARGS__); }
+#define ELKLOG_LOG_ERROR_IF(condition, msg, ...)    if (condition) { elklog::Logger::logger_instance->error("{}" msg, local_log_prefix, ##__VA_ARGS__); }
+#define ELKLOG_LOG_CRITICAL_IF(condition, msg, ...) if (condition) { elklog::Logger::logger_instance->critical("{}" msg, local_log_prefix, ##__VA_ARGS__); }
 
 namespace elklog {
 
@@ -106,8 +106,9 @@ public:
      * @param logger_name Internal name of the logger
      * @param min_log_level Minimum logging level, one of ('debug', 'info', 'warning', 'error', 'critical')
      * @param logger_type Choose between TYPE::TEXT (default), and JSON.
-     * @param flush_interval Forces a flush every n seconds, no flush if set to 0
-     * @param drop_logger_if_duplicate If another logger instance
+     * @param flush_interval Forces a flush every n seconds, no periodic flush if set to 0
+     * @param drop_logger_if_duplicate If another logger instance is active with the same name, drop
+     *                                 that before creating a new one
      *
      * @returns Error code, use ELKLOG_LOG_ERROR_MESSAGES to retrieve the message
      *
@@ -115,16 +116,24 @@ public:
     static elklog::LogErrorCode init_logger(const std::string& file_name,
                                             const std::string& logger_name,
                                             const std::string& min_log_level,
-                                            ElkLogger::TYPE logger_type = ElkLogger::TYPE::TEXT,
-                                            const std::chrono::seconds log_flush_interval = std::chrono::seconds(0),
+                                            std::chrono::seconds log_flush_interval = std::chrono::seconds(0),
+                                            ElkLogger::Type logger_type = ElkLogger::Type::TEXT,
                                             bool drop_logger_if_duplicate = false,
                                             int max_files = 1)
     {
-        logger_instance = std::make_shared<ElkLogger>(min_log_level, logger_type);
+        /* Make one call to spdlog to make avoid the static initialization
+         * order problem and ensure sure that static spdlog internals are
+         * initialized before the logger instance is created, and destroyed
+         * after the logger is destroyed.
+         */
+        [[maybe_unused]] auto level = spdlog::get_level();
+        static std::shared_ptr<ElkLogger> internal_instance;
+        internal_instance = std::make_shared<ElkLogger>(min_log_level, logger_type);
+        logger_instance = internal_instance.get();
         return logger_instance->initialize(file_name, logger_name, log_flush_interval, drop_logger_if_duplicate, max_files);
     }
 
-    static std::shared_ptr<ElkLogger> logger_instance;
+    static ElkLogger* logger_instance;
 
 private:
     Logger() = default;

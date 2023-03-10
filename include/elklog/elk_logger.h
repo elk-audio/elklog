@@ -23,6 +23,7 @@
 #include "log_return_code.h"
 
 #ifndef ALOHA_DISABLE_LOGGING
+#include "spdlog/spdlog.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreorder"
@@ -43,7 +44,7 @@ constexpr int MAX_LOG_FILE_SIZE = 10'000'000;   // In bytes
 class ElkLogger
 {
 public:
-    enum class TYPE
+    enum class Type
     {
         TEXT,
         JSON
@@ -59,7 +60,7 @@ public:
      * @param logger_type Choose between TYPE::TEXT (default), and JSON.
      */
     ElkLogger(const std::string& min_log_level,
-              TYPE logger_type = TYPE::TEXT) :
+              Type logger_type = Type::TEXT) :
              _min_log_level(min_log_level),
              _type(logger_type)
     {
@@ -139,13 +140,13 @@ public:
             return LogErrorCode::FAILED_TO_START_LOGGER;
         }
 
-        if (_type == TYPE::JSON)
+        if (_type == Type::JSON)
         {
             // We have some extra formatting on the log level %l below,
             // to keep color coding when dumping json to the console,
             // and we use a full ISO 8601 time/date format.
 
-            // "time" here is human-readable - there's another taw timestamp in the payload from wrappers.
+            // "time" here is human-readable - there's another raw timestamp in the payload from wrappers.
             _logger_instance->set_pattern(
                 "{\"time\": \"%Y-%m-%dT%H:%M:%S.%e%z\", "
                 "\"name\": \"%n\", "
@@ -159,7 +160,7 @@ public:
         else
         {
             _logger_instance->set_pattern("[%Y-%m-%d %T.%e] [%l] %v");
-            _logger_instance->info("Logger {}, \"status\": \"Started\"", logger_name);
+            _logger_instance->info("Started logger: {}.", logger_name);
         }
 
         return LogErrorCode::OK;
@@ -227,9 +228,10 @@ public:
 
     void close_log()
     {
-        if (_type != TYPE::JSON)
+        if (_type != Type::JSON)
         {
             _logger_instance->flush();
+            _closed = true;
             return;
         }
 
@@ -300,10 +302,11 @@ private:
     std::shared_ptr<spdlog::logger> _logger_instance;
     std::unique_ptr<RtLogger<RTLOG_MESSAGE_SIZE, RTLOG_QUEUE_SIZE>> _rt_logger {nullptr};
 
-    TYPE _type {TYPE::TEXT};
+    Type _type {Type::TEXT};
     bool _closed {false};
 
     std::promise<bool> _closed_promise;
+    friend class Logger;
 };
 
 } // namespace aloha
