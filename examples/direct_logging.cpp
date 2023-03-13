@@ -20,7 +20,7 @@ int main()
     auto logger = elklog::ElkLogger("info");
 
     auto res = logger.initialize(log_filename, log_name, log_flush_interval);
-    if (res != elklog::LogErrorCode::OK)
+    if (res != elklog::Status::OK)
     {
         std::cout << "Failed to initialize logger: " << res << std::endl;
         return -1;

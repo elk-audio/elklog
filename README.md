@@ -1,29 +1,40 @@
-Template for new projects.
-==========================
-Includes CMake configuration (with Google Test and third-party libraries support), easy access to log library and command line options parsing.
+# ElkLog
+Logger library with support for logging both non-realtime and realtime threads. ElkLog uses spdlog internally but adds features specifically for logging in Elk Audio OS. 
 
-Quick instructions:
- * fetch submodules with `git submodule update --init`
- * rename the CMake project from `project_template` to your prefered name
- * grep for `projecttemplate` and `project_template` (case insensitive) in `main.cpp` and `options.h`
-   and change those to your project name
- * take a look at how command line arguments are passed and how to use debug macros
+Copyright 2020 - 2023 Modern Ancient Instruments Networked AB, dba Elk, Stockholm, Sweden.
 
-Directory layout:
----------------
+## Usage
 
+### Building and linking
+To include ElkLog in a CMake based project the lines below needs to be added to the projects CMake configuration. Further build options can be found in elklog/CMakeLists.txt
 ```
-include/        : public header files should be put in this directory
-misc/           : stuff that is not directly related to the build targets, i.e. accessory scripts to generate configuration data, etc.
-src/            : All source files and corresponding header files should go here. For larger projects the source files should be placed in folders separated by logical units within the project.
-test/           : testing code
-    unittests/  : All unit test source code goes here, the directory structure should mirror that of the src dir and the files names should be xxxx_test.cpp.
-    googletest/ : The gtest framework. Automatically built with the tests.
-    tools/      : Examples and non-unit tests for e.g. third-party libraries.
-third_party/    : Any third party dependencies that are to be compiled into the project goes here
+add_subdirectory(elklog)`
+target_link_libraries(project PRIVATE elklog)
 ```
 
-Build instructions:
--------------------
-The generate script creates a build folder and calls cmake to make a release folder and a debug folder. To rebuild, one can simply cd into build/release or build/debug and do "make".
+### Logging
+ElkLog can be used in one of 2 ways. Either by directly creating and managing instances of the ElkLogger class. Useful for projects that use multiple loggers and/or libraries that supports multiple instances.
+``` 
+#include "elklog/elk_logger.h"
+elklog::ElkLogger logger("debug");
+if (logger.initialize("log.txt", "example_logger") == elklog::Status::OK)
+{
+   logger.info("log some text");
+}  
+```
+Elklog also has a static log wrapper that can be used for projects where there is only a single logger instance. As the logger is static, logging can be done from any part of the code without passing around an explicit logger instance. 
+This can also be used together with ELKLOG_DISABLE_LOGGING to remove logging at compile time, usefor for example in unit testing.
 
+```
+#include "elklog/static_logger.h"
+ELKLOG_GET_LOGGER;
+if (elklog::StaticLogger::init_logger("log.txt", "example_logger", "debug") == elklog::Status::OK)
+{
+   ELK_LOG_LOG_INFO("Log some text");
+}
+```
+## License
+
+ElkLog is licensed under the GNU General Public License v3 (“GPLv3”). Commercial licenses are available on request at tech@elk.audio.
+
+Copyright 2020-2023 Modern Ancient Instruments Networked AB, dba Elk, Stockholm, Sweden.

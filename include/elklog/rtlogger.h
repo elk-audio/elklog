@@ -1,10 +1,24 @@
+/*
+ * Copyright 2020-2023 Modern Ancient Instruments Networked AB, dba Elk
+ * ElkLog is free software: you can redistribute it and/or modify it under the terms
+ * of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Twine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Twine.
+ * If not, see http://www.gnu.org/licenses/ .
+ */
+
 /**
  * @brief Real-Time logger that can be used to pass messages
  *        from RT to non-RT and merged into the main log system used.
  *
  *        Not safe to log messages from multiple RT threads at the same time.
  *
- * @copyright Copyright 2017-2023 Elk AB, Stockholm
+ * @copyright Copyright 2020-2023 Elk AB, Stockholm
  */
 
 #ifndef RT_LOGGER_H

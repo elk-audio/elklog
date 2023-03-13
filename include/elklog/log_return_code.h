@@ -1,7 +1,21 @@
+/*
+ * Copyright 2020-2023 Modern Ancient Instruments Networked AB, dba Elk
+ * ElkLog is free software: you can redistribute it and/or modify it under the terms
+ * of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Twine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Twine.
+ * If not, see http://www.gnu.org/licenses/ .
+ */
+
 /**
  * @brief Log initialization return codes
  *
- * @copyright Copyright 2017-2023 Elk AB, Stockholm
+ * @copyright Copyright 2020-2023 Elk AB, Stockholm
  */
 
 #ifndef LOG_RETURN_CODE_H
@@ -11,7 +25,7 @@
 
 namespace elklog {
 
-enum class LogErrorCode : int
+enum class Status : int
 {
     OK = 0,
     INVALID_LOG_LEVEL = 1,
@@ -19,23 +33,23 @@ enum class LogErrorCode : int
     INVALID_FLUSH_INTERVAL = 3
 };
 
-inline std::ostream& operator << (std::ostream& o, const LogErrorCode& c)
+inline std::ostream& operator << (std::ostream& o, const Status& c)
 {
     switch (c)
     {
-    case LogErrorCode::OK:
+    case Status::OK:
         o << "Ok";
         break;
 
-    case LogErrorCode::INVALID_LOG_LEVEL:
+    case Status::INVALID_LOG_LEVEL:
         o << "Invalid log level";
         break;
 
-    case LogErrorCode::INVALID_FLUSH_INTERVAL:
+    case Status::INVALID_FLUSH_INTERVAL:
         o << "Invalid Flush interval";
         break;
 
-    case LogErrorCode::FAILED_TO_START_LOGGER:
+    case Status::FAILED_TO_START_LOGGER:
         o << "Failed to initialize SPD logger instance";
         break;
     }

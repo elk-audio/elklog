@@ -1,11 +1,25 @@
-/**
+/*
+ * Copyright 2020-2023 Modern Ancient Instruments Networked AB, dba Elk
+ * ElkLog is free software: you can redistribute it and/or modify it under the terms
+ * of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Twine is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Twine.
+ * If not, see http://www.gnu.org/licenses/ .
+ */
+
+ /**
  * @brief Wrapper around Logging library to log multiple plugin instances to a single
  *        file and a marker for the instance in the log-line.
  *
  *        Provides a unified logger abstraction that is safe to call in any context
  *        (either RT or non-RT).
  *
- * @copyright Modern Ancient Instruments Networked AB, dba Elk
+ * @copyright Copyright 2020-2023 Elk AB, Stockholm
  */
 
 #ifndef ALOHA_LOGGER_H
@@ -87,11 +101,11 @@ public:
      *         Can be passed straight to << stream operators
      *         for a human-readable output error string.
      */
-    LogErrorCode initialize(const std::string& log_file_path,
-                            const std::string& logger_name = "\"elk_logger",
-                            std::chrono::seconds flush_interval = std::chrono::seconds(0),
-                            bool drop_logger_if_duplicate = false,
-                            int max_files = 1)
+    Status initialize(const std::string& log_file_path,
+                      const std::string& logger_name = "\"elk_logger",
+                      std::chrono::seconds flush_interval = std::chrono::seconds(0),
+                      bool drop_logger_if_duplicate = false,
+                      int max_files = 1)
     {
         std::map<std::string, spdlog::level::level_enum> level_map;
         level_map["debug"] = spdlog::level::debug;
@@ -112,7 +126,7 @@ public:
 
         if (level_map.count(log_level_lowercase) <= 0)
         {
-            return LogErrorCode::INVALID_LOG_LEVEL;
+            return Status::INVALID_LOG_LEVEL;
         }
         auto log_level = level_map[log_level_lowercase];
         spdlog::set_level(log_level);
@@ -137,7 +151,7 @@ public:
 
         if (_logger_instance == nullptr)
         {
-            return LogErrorCode::FAILED_TO_START_LOGGER;
+            return Status::FAILED_TO_START_LOGGER;
         }
 
         if (_type == Type::JSON)
@@ -163,7 +177,7 @@ public:
             _logger_instance->info("Started logger: {}.", logger_name);
         }
 
-        return LogErrorCode::OK;
+        return Status::OK;
     }
 
     template<typename... Args>
@@ -306,7 +320,7 @@ private:
     bool _closed {false};
 
     std::promise<bool> _closed_promise;
-    friend class Logger;
+    friend class StaticLogger;
 };
 
 } // namespace aloha
