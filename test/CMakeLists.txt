@@ -2,34 +2,17 @@
 add_subdirectory(googletest)
 enable_testing()
 
-#####################################
-#  Disable logging at compile time  #
-#####################################
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDISABLE_LOGGING")
-
 ################
 #  Test Files  #
 ################
 
-SET(TEST_FILES unittests/sample_test.cpp)
-
-##########################################
-#  Include directories relative to test  #
-##########################################
-
-set(INCLUDE_DIRS "${INCLUDE_DIRS}"
-                 ${PROJECT_SOURCE_DIR}/test/googletest/include)
-
-include_directories(${INCLUDE_DIRS})
+SET(TEST_FILES unittests/elklog_test.cpp)
 
 #################################
 #  Statically linked libraries  #
 #################################
 
-set(LINK_LIBRARIES "${LINK_LIBRARIES}"
-                   gtest
-                   gtest_main)
+set(LINK_LIBRARIES gtest gtest_main elklog)
 
 add_executable(unit_tests ${TEST_FILES})
 

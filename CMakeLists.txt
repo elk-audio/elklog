@@ -42,19 +42,17 @@ target_link_libraries(elklog fifo spdlog twine)
 #  Tests  #
 ###########
 
-add_subdirectory(test)
+if (ELKLOG_WITH_UNIT_TESTS)
+    add_subdirectory(test)
+endif()
 
 ##############
 #  Examples  #
 ##############
 
-add_executable(elklog_example examples/direct_logging.cpp)
-target_include_directories(elklog_example PRIVATE ${INCLUDE_DIRS})
-target_link_libraries(elklog_example PRIVATE elklog)
-target_compile_features(elklog_example PUBLIC cxx_std_17)
+if (ELKLOG_WITH_EXAMPLES)
+    add_subdirectory(examples)
+endif()
 
-add_executable(static_example examples/static_logging.cpp)
-target_include_directories(static_example PRIVATE ${INCLUDE_DIRS})
-target_link_libraries(static_example PRIVATE elklog)
-target_compile_features(static_example PUBLIC cxx_std_17)
+
 

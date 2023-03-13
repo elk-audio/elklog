@@ -41,17 +41,7 @@
 
 #include "elk_logger.h"
 
-/** Error codes returned by set_logger_params
- */
-enum ELKLOG_LOG_ERROR_CODE
-{
-    ELKLOG_LOG_ERROR_CODE_OK = 0,
-    ELKLOG_LOG_ERROR_CODE_INVALID_LOG_LEVEL = 1,
-    ELKLOG_LOG_FAILED_TO_START_LOGGER = 2,
-    ELKLOG_LOG_ERROR_CODE_INVALID_FLUSH_INTERVAL = 3
-};
-
-#define SPDLOG_DEBUG_ON // TODO - needed?
+//#define SPDLOG_DEBUG_ON // TODO - needed?
 
 /* log macros */
 #ifndef ELKLOG_DISABLE_LOGGING

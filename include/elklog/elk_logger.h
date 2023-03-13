@@ -85,9 +85,11 @@ public:
 
     virtual ~ElkLogger()
     {
-        close_log();
-
-        spdlog::drop(_logger_instance->name());
+        if (_logger_instance)
+        {
+            close_log();
+            spdlog::drop(_logger_instance->name());
+        }
 
         _closed_promise.set_value(_closed);
     }
@@ -132,22 +134,29 @@ public:
         spdlog::set_level(log_level);
         spdlog::flush_on(log_level);
 
+        // Check for already registered logger
+        auto possible_logger = spdlog::get(logger_name);
+
         if (drop_logger_if_duplicate)
         {
-            auto possible_logger = spdlog::get(logger_name);
-
-            if (possible_logger.get() != nullptr)
+            if (spdlog::get(logger_name))
             {
                 spdlog::drop(logger_name);
             }
         }
 
-        _logger_instance = spdlog::rotating_logger_mt<spdlog::async_factory>(logger_name,
-                                                                             log_file_path,
-                                                                             MAX_LOG_FILE_SIZE,
-                                                                             max_files,
-                                                                             false // Rotate on open: false
-                                                                             );
+        try
+        {
+            _logger_instance = spdlog::rotating_logger_mt<spdlog::async_factory>(logger_name,
+                                                                                 log_file_path,
+                                                                                 MAX_LOG_FILE_SIZE,
+                                                                                 max_files,
+                                                                                 false);
+        }
+        catch (const std::exception &ex)
+        {
+            return Status::FAILED_TO_START_LOGGER;
+        }
 
         if (_logger_instance == nullptr)
         {
