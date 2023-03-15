@@ -36,7 +36,7 @@
 
 #include "log_return_code.h"
 
-#ifndef ALOHA_DISABLE_LOGGING
+#ifndef ELKLOG_DISABLE_LOGGING
 #include "spdlog/spdlog.h"
 
 #pragma GCC diagnostic push
@@ -51,9 +51,9 @@
 
 namespace elklog {
 
-constexpr int RTLOG_MESSAGE_SIZE = 2048;
-constexpr int RTLOG_QUEUE_SIZE = 1024;
-constexpr int MAX_LOG_FILE_SIZE = 10'000'000;   // In bytes
+constexpr int RTLOG_MESSAGE_SIZE = ELKLOG_RT_MESSAGE_SIZE;
+constexpr int RTLOG_QUEUE_SIZE = ELKLOG_RT_QUEUE_SIZE;
+constexpr int MAX_LOG_FILE_SIZE = ELKLOG_FILE_SIZE;   // In bytes
 
 class ElkLogger
 {
@@ -329,12 +329,11 @@ private:
     bool _closed {false};
 
     std::promise<bool> _closed_promise;
-    friend class StaticLogger;
 };
 
 } // namespace aloha
 
-#else // ALOHA_DISABLE_LOGGING
+#else // ELKLOG_DISABLE_LOGGING
 
 namespace aloha {
 
@@ -374,6 +373,6 @@ public:
 
 } // namespace aloha
 
-#endif // ALOHA_DISABLE_LOGGING
+#endif // ELKLOG_DISABLE_LOGGING
 
 #endif /* ALOHA_LOGGER_H */

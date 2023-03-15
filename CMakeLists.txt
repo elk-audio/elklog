@@ -20,21 +20,34 @@ project(elk-log
 #  Build options  #
 ###################
 
+option(ELKLOG_MULTI_THREADED_RT_LOGGING "Allow realtime logging from multiple threads simultaneously"  ON)
 option(ELKLOG_WITH_UNIT_TESTS "Build and run unit tests after compilation" ON)
 option(ELKLOG_WITH_EXAMPLES "Build included examples"  ON)
+
+set(ELKLOG_FILE_SIZE 10000000 CACHE STRING "Maximum log file size in bytes")
+set(ELKLOG_RT_MESSAGE_SIZE 2048 CACHE STRING "Maximum length of log messages from realtime threads")
+set(ELKLOG_RT_QUEUE_SIZE 1024 CACHE STRING "Size of realtime log queue")
+
+######################
+#  Add dependencies  #
+######################
 
 set(TWINE_WITH_TESTS OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(twine)
 add_subdirectory(third-party)
 
-#############################
-#  Create interface target  #
-#############################
+###################
+#  Create target  #
+###################
 
 add_library(elklog STATIC src/elklog.cpp)
 target_include_directories(elklog PUBLIC include)
 target_compile_features(elklog PUBLIC cxx_std_17)
+target_compile_definitions(elklog PUBLIC -DELKLOG_MULTI_THREADED_RT_LOGGING=${ELKLOG_MULTI_THREADED_RT_LOGGING}
+                                         -DELKLOG_FILE_SIZE=${ELKLOG_FILE_SIZE}
+                                         -DELKLOG_RT_MESSAGE_SIZE=${ELKLOG_RT_MESSAGE_SIZE}
+                                         -DELKLOG_RT_QUEUE_SIZE=${ELKLOG_RT_QUEUE_SIZE})
 target_link_libraries(elklog fifo spdlog twine)
 
 

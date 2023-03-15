@@ -29,7 +29,7 @@
 
 #include "rtlogmessage.h"
 
-#ifndef ALOHA_DISABLE_LOGGING
+#ifndef ELKLOG_DISABLE_LOGGING
 
 #include <map>
 #include <algorithm>
@@ -38,11 +38,12 @@
 #include <atomic>
 
 #include "fifo/circularfifo_memory_relaxed_aquire_release.h"
-
 #include "twine/twine.h"
 
-namespace elklog
-{
+#include "spinlock.h"
+
+
+namespace elklog {
 
 template<size_t message_len, size_t fifo_size>
 class RtLogger
@@ -148,7 +149,7 @@ private:
 
 } // namespace aloha
 
-#else // ALOHA_DISABLE_LOGGING
+#else // ELKLOG_DISABLE_LOGGING
 
 namespace aloha {
 
@@ -187,7 +188,7 @@ public:
 
 } // namespace aloha
 
-#endif // ALOHA_DISABLE_LOGGING
+#endif // ELKLOG_DISABLE_LOGGING
 
 #endif /* RT_LOGGER_H */
 
