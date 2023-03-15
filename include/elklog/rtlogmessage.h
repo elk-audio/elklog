@@ -41,7 +41,7 @@ public:
         _level(RtLogLevel::INFO),
         _timestamp(std::chrono::nanoseconds(0))
     {
-        std::fill(_buffer, _buffer + buffer_len, 0);
+        _buffer.fill(0);
     }
 
     RtLogMessage(RtLogLevel level, std::chrono::nanoseconds timestamp, const char* message) :
@@ -108,7 +108,7 @@ private:
 
     RtLogLevel _level {0};
     std::chrono::nanoseconds _timestamp {0};
-    char _buffer[buffer_len];
+    std::array<char, buffer_len> _buffer;
 };
 
 template<size_t buffer_len>

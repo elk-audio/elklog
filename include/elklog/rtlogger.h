@@ -92,8 +92,12 @@ public:
         {
             return;
         }
-        _temp_producer_message.reset(level, twine::current_rt_time(), format_str, args...);
-        _queue.push(_temp_producer_message);
+        RtLogMessage<message_len> message;
+        message.reset(level, twine::current_rt_time(), format_str, args...);
+
+        _lock.lock();
+        _queue.push(message);
+        _lock.unlock();
     }
 
     template<typename... Args>
@@ -124,11 +128,12 @@ public:
 private:
     void _consumer_worker()
     {
+        RtLogMessage<message_len> message;
         while (_consumer_running)
         {
-            while (_queue.pop(_temp_consumer_message))
+            while (_queue.pop(message))
             {
-                _consumer_callback(_temp_consumer_message);
+                _consumer_callback(message);
             }
             std::this_thread::sleep_for(_sleep_period);
         }
@@ -138,11 +143,11 @@ private:
     std::atomic<bool> _consumer_running {false};
     std::chrono::milliseconds _sleep_period;
 
+    SpinLock _lock;
+
     memory_relaxed_aquire_release::CircularFifo<RtLogMessage<message_len>, fifo_size> _queue;
 
     std::function<void(const RtLogMessage<message_len>& msg)> _consumer_callback;
-    RtLogMessage<message_len> _temp_producer_message;
-    RtLogMessage<message_len> _temp_consumer_message;
 
     RtLogLevel _min_log_level;
 };

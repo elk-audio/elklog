@@ -44,10 +44,14 @@ add_subdirectory(third-party)
 add_library(elklog STATIC src/elklog.cpp)
 target_include_directories(elklog PUBLIC include)
 target_compile_features(elklog PUBLIC cxx_std_17)
-target_compile_definitions(elklog PUBLIC -DELKLOG_MULTI_THREADED_RT_LOGGING=${ELKLOG_MULTI_THREADED_RT_LOGGING}
-                                         -DELKLOG_FILE_SIZE=${ELKLOG_FILE_SIZE}
+target_compile_definitions(elklog PUBLIC -DELKLOG_FILE_SIZE=${ELKLOG_FILE_SIZE}
                                          -DELKLOG_RT_MESSAGE_SIZE=${ELKLOG_RT_MESSAGE_SIZE}
                                          -DELKLOG_RT_QUEUE_SIZE=${ELKLOG_RT_QUEUE_SIZE})
+
+if(ELKLOG_MULTI_THREADED_RT_LOGGING)
+    target_compile_definitions(elklog PUBLIC -DELKLOG_MULTI_THREADED_RT_LOGGING=1)
+endif()
+
 target_link_libraries(elklog fifo spdlog twine)
 
 
