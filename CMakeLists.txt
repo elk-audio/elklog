@@ -21,6 +21,7 @@ project(elk-log
 ###################
 
 option(ELKLOG_MULTI_THREADED_RT_LOGGING "Allow realtime logging from multiple threads simultaneously"  ON)
+option(ELKLOG_USE_INCLUDED_TWINE "If Elklog is included in a project that already include Twine, set this to OFF" ON)
 option(ELKLOG_WITH_UNIT_TESTS "Build and run unit tests after compilation" ON)
 option(ELKLOG_WITH_EXAMPLES "Build included examples"  ON)
 
@@ -34,7 +35,9 @@ set(ELKLOG_RT_QUEUE_SIZE 1024 CACHE STRING "Size of realtime log queue")
 
 set(TWINE_WITH_TESTS OFF CACHE BOOL "" FORCE)
 
-add_subdirectory(twine)
+if (ELKLOG_USE_INCLUDED_TWINE)
+    add_subdirectory(twine)
+endif()
 add_subdirectory(third-party)
 
 ###################
@@ -43,6 +46,7 @@ add_subdirectory(third-party)
 
 add_library(elklog STATIC src/elklog.cpp)
 target_include_directories(elklog PUBLIC include)
+set_target_properties(elklog spdlog PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_compile_features(elklog PUBLIC cxx_std_17)
 target_compile_definitions(elklog PUBLIC -DELKLOG_FILE_SIZE=${ELKLOG_FILE_SIZE}
                                          -DELKLOG_RT_MESSAGE_SIZE=${ELKLOG_RT_MESSAGE_SIZE}
@@ -52,8 +56,10 @@ if(ELKLOG_MULTI_THREADED_RT_LOGGING)
     target_compile_definitions(elklog PUBLIC -DELKLOG_MULTI_THREADED_RT_LOGGING=1)
 endif()
 
-target_link_libraries(elklog fifo spdlog twine)
-
+target_link_libraries(elklog fifo spdlog)
+if (ELKLOG_USE_INCLUDED_TWINE)
+    target_link_libraries(elklog twine)
+endif()
 
 ###########
 #  Tests  #

@@ -335,23 +335,30 @@ private:
 
 #else // ELKLOG_DISABLE_LOGGING
 
-namespace aloha {
+namespace elklog {
 
-class AlohaLogger
+class ElkLogger
 {
 public:
-    AlohaLogger(int /*instance_counter*/,
-                const std::string& /*min_log_level*/)
+    enum class Type
+    {
+        TEXT,
+        JSON
+    };
+
+    ElkLogger([[maybe_unused]] const std::string& min_log_level,
+              [[maybe_unused]] Type logger_type = Type::TEXT)
     {}
 
-    virtual ~AlohaLogger() = default;
+    virtual ~ElkLogger() = default;
 
-    LogErrorCode initialize(const std::string& /*log_file_path*/,
-                            const std::string& /*logger_name*/ = "\"aloha_logger_{0}\"",
-                            bool /*drop_if_duplicate*/ = false,
-                            int /*max_files*/ = 1)
+    Status initialize([[maybe_unused]] const std::string& log_file_path,
+                      [[maybe_unused]] const std::string& logger_name = "\"elk_logger",
+                      [[maybe_unused]] std::chrono::seconds flush_interval = std::chrono::seconds(0),
+                      [[maybe_unused]] bool drop_logger_if_duplicate = false,
+                      [[maybe_unused]] int max_files = 1)
     {
-        return LogErrorCode::OK;
+        return Status::OK;
     }
 
     template<typename... Args>
