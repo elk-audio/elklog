@@ -56,10 +56,7 @@ if(ELKLOG_MULTI_THREADED_RT_LOGGING)
     target_compile_definitions(elklog PUBLIC -DELKLOG_MULTI_THREADED_RT_LOGGING=1)
 endif()
 
-target_link_libraries(elklog fifo spdlog)
-if (ELKLOG_USE_INCLUDED_TWINE)
-    target_link_libraries(elklog twine)
-endif()
+target_link_libraries(elklog fifo spdlog twine)
 
 ###########
 #  Tests  #
