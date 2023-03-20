@@ -23,3 +23,4 @@ add_test(unit_tests unit_tests)
 add_custom_target(run_tests ALL COMMAND "./unit_tests")
 add_dependencies(run_tests unit_tests)
 
+add_subdirectory(performancetests)
