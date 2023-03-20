@@ -54,6 +54,7 @@ namespace elklog {
 constexpr int RTLOG_MESSAGE_SIZE = ELKLOG_RT_MESSAGE_SIZE;
 constexpr int RTLOG_QUEUE_SIZE = ELKLOG_RT_QUEUE_SIZE;
 constexpr int MAX_LOG_FILE_SIZE = ELKLOG_FILE_SIZE;   // In bytes
+constexpr auto RT_CONSUMER_POLL_PERIOD = std::chrono::milliseconds(50);
 
 class ElkLogger
 {
@@ -78,7 +79,7 @@ public:
              _min_log_level(min_log_level),
              _type(logger_type)
     {
-        _rt_logger = std::make_unique<RtLogger<RTLOG_MESSAGE_SIZE, RTLOG_QUEUE_SIZE>>(50,
+        _rt_logger = std::make_unique<RtLogger<RTLOG_MESSAGE_SIZE, RTLOG_QUEUE_SIZE>>(RT_CONSUMER_POLL_PERIOD,
                 std::bind(&ElkLogger::_rt_logger_callback, this, std::placeholders::_1),
                 min_log_level);
     }

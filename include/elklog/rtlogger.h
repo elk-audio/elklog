@@ -49,7 +49,7 @@ template<size_t message_len, size_t fifo_size>
 class RtLogger
 {
 public:
-    RtLogger(int consumer_poll_period_ms,
+    RtLogger(std::chrono::milliseconds consumer_poll_period,
              std::function<void(const RtLogMessage<message_len>& msg)> consumer_callback,
              const std::string& min_log_level) :
         _consumer_callback(consumer_callback)
@@ -71,7 +71,7 @@ public:
         {
             _min_log_level = RtLogLevel::INFO;
         }
-        _sleep_period = std::chrono::milliseconds(consumer_poll_period_ms);
+        _sleep_period = std::chrono::milliseconds(consumer_poll_period);
         _consumer_running.store(true);
         _consumer_thread = std::thread(&RtLogger::_consumer_worker, this);
     }

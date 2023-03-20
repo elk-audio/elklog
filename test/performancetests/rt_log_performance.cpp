@@ -13,7 +13,7 @@
 
 constexpr int ITERATIONS = 10000;
 constexpr int WORKERS = 4;
-constexpr auto SLEEP_TIME = std::chrono::milliseconds(5);
+constexpr auto SLEEP_TIME = std::chrono::milliseconds(50);
 
 std::atomic<int> thread_counter = 0;
 
@@ -38,8 +38,13 @@ void logger_worker(elklog::ElkLogger* logger, std::vector<std::chrono::nanosecon
         std::atomic_thread_fence(std::memory_order_seq_cst);
 
         times->push_back(stop_time);
-        std::this_thread::sleep_for(SLEEP_TIME + std::chrono::milliseconds(thread_id));
         iterations--;
+        //std::this_thread::sleep_for(SLEEP_TIME + std::chrono::milliseconds(thread_id));
+
+        if (iterations % 100 == 0)
+        {
+            std::this_thread::sleep_for(SLEEP_TIME + std::chrono::milliseconds(thread_id));
+        }
     }
 }
 
