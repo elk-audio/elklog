@@ -11,7 +11,7 @@
 #include "elklog/elk_logger.h"
 #include "../twine/src/twine_internal.h"
 
-constexpr int ITERATIONS = 10000;
+constexpr int ITERATIONS = 30000;
 constexpr int WORKERS = 1;
 constexpr auto SLEEP_TIME = std::chrono::milliseconds(50);
 
@@ -28,13 +28,13 @@ void logger_worker(elklog::ElkLogger* logger, std::vector<std::chrono::nanosecon
     while (iterations > 0)
     {
         float one = std::rand() + iterations;
-        int two = std::rand() / 0.02f;
+        int two = (float)std::rand() / 0.02f;
 
         std::atomic_thread_fence(std::memory_order_seq_cst);
         //auto start_time = twine::current_rt_time();
         auto start_time = std::chrono::high_resolution_clock::now();
         std::atomic_thread_fence(std::memory_order_seq_cst);
-        logger->info_rt("Logging rt from thread {}, {}, {}", str_thread_id.c_str(), one, two);
+        logger->info("Logging rt from thread {}, {}, {}", str_thread_id.c_str(), one, two);
         std::atomic_thread_fence(std::memory_order_seq_cst);
         //auto stop_time = twine::current_rt_time() - start_time;
         auto stop_time = std::chrono::high_resolution_clock::now() - start_time;
@@ -92,8 +92,9 @@ int main()
     }
 
 
-    auto min_time = *std::min_element(times.begin(), times.end());
-    auto max_time = *std::max_element(times.begin(), times.end());
+    std::sort(times.begin(), times.end());
+    auto min_time = times.front();
+    auto max_time = times.back();
     auto avg_time = std::accumulate(times.begin(), times.end(), std::chrono::nanoseconds(0)) / times.size();
 
     logger.info("Finished logging");
