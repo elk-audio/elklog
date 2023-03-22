@@ -40,10 +40,11 @@ public:
 
     RtLogMessage() :
         _level(RtLogLevel::INFO),
-        _timestamp(std::chrono::nanoseconds(0)),
-        _length(0)
+        _timestamp(std::chrono::nanoseconds(0))
+        //_length(0)
     {
-        _buffer[0] = '\0';
+        _buffer.fill('\0');
+        //_buffer[0] = '\0';
     }
 
     // TODO - Keep? Not used in elklog.
@@ -64,7 +65,7 @@ public:
         }
         _level = rhs._level;
         _timestamp = rhs._timestamp;
-        _length = rhs._length;
+        //_length = rhs._length;
         _set_message_str(rhs._buffer.data());
 
         //std::copy(rhs._buffer.begin(), rhs._buffer.begin() + rhs._length, _buffer.begin());
@@ -112,18 +113,18 @@ private:
     void _set_message_str(const char* message)
     {
         std::strncpy(_buffer.data(), message, buffer_len);
-        _length = std::strlen(message);
+        //_length = std::strlen(message);
     }
 
     RtLogLevel _level;
     std::chrono::nanoseconds _timestamp;
-    size_t  _length;
+    //size_t  _length;
     std::array<char, buffer_len> _buffer;
 
     void _set_message_str(const char* message_start, const char* message_end)
     {
         std::copy(message_start, message_end, _buffer.data());
-        _length = std::distance(message_start, message_end);
+        //_length = std::distance(message_start, message_end);
     }
 };
 

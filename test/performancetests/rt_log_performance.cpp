@@ -27,8 +27,8 @@ void logger_worker(elklog::ElkLogger* logger, std::vector<std::chrono::nanosecon
 
     while (iterations > 0)
     {
-        float one = std::rand() + iterations;
-        int two = (float)std::rand() / 0.02f;
+        int one = std::rand() + iterations;
+        float two = (float)std::rand() / 0.02f;
 
         std::atomic_thread_fence(std::memory_order_seq_cst);
         //auto start_time = twine::current_rt_time();
