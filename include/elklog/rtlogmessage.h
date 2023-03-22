@@ -24,6 +24,7 @@
 #include <chrono>
 #include <ostream>
 #include <cstring>
+#include <cassert>
 
 #include <spdlog/fmt/bundled/format.h>
 #include <spdlog/fmt/bundled/chrono.h>
@@ -39,17 +40,19 @@ public:
 
     RtLogMessage() :
         _level(RtLogLevel::INFO),
-        _timestamp(std::chrono::nanoseconds(0))
+        _timestamp(std::chrono::nanoseconds(0)),
+        _length(0)
     {
-        _buffer.fill(0);
+        _buffer[0] = '\0';
     }
 
-    RtLogMessage(RtLogLevel level, std::chrono::nanoseconds timestamp, const char* message) :
+    // TODO - Keep? Not used in elklog.
+    /*RtLogMessage(RtLogLevel level, std::chrono::nanoseconds timestamp, const char* message) :
         _level(level),
         _timestamp(timestamp)
     {
         _set_message_str(message);
-    }
+    }*/
 
     virtual ~RtLogMessage() = default;
 
@@ -61,7 +64,11 @@ public:
         }
         _level = rhs._level;
         _timestamp = rhs._timestamp;
-        _set_message_str(&rhs._buffer[0]);
+        _length = rhs._length;
+        _set_message_str(rhs._buffer.data());
+
+        //std::copy(rhs._buffer.begin(), rhs._buffer.begin() + rhs._length, _buffer.begin());
+        //_set_message_str(rhs._buffer.begin(), rhs._buffer.begin() + rhs._length);
         return *this;
     }
 
@@ -95,7 +102,8 @@ public:
 #pragma GCC diagnostic pop
         // Add null-termination character
         temp_buffer.push_back(0);
-        _set_message_str(temp_buffer.data());
+        //_set_message_str(temp_buffer.begin(), end + 1);
+        _set_message_str(&temp_buffer[0]);
         _level = level;
         _timestamp = timestamp;
     }
@@ -103,13 +111,25 @@ public:
 private:
     void _set_message_str(const char* message)
     {
-        std::strncpy(&_buffer[0], message, buffer_len);
+        std::strncpy(_buffer.data(), message, buffer_len);
+        _length = std::strlen(message);
     }
 
-    RtLogLevel _level {0};
-    std::chrono::nanoseconds _timestamp {0};
+    RtLogLevel _level;
+    std::chrono::nanoseconds _timestamp;
+    size_t  _length;
     std::array<char, buffer_len> _buffer;
+
+    void _set_message_str(const char* message_start, const char* message_end)
+    {
+        std::copy(message_start, message_end, _buffer.data());
+        _length = std::distance(message_start, message_end);
+    }
 };
+
+static_assert(std::is_trivially_copyable<RtLogLevel>::value);
+static_assert(std::is_trivially_copyable<std::chrono::nanoseconds>::value);
+static_assert(std::is_trivially_copyable<std::array<char,100>>::value);
 
 template<size_t buffer_len>
 inline std::ostream& operator << (std::ostream& o, const RtLogMessage<buffer_len>& m)

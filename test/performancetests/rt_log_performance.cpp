@@ -12,7 +12,7 @@
 #include "../twine/src/twine_internal.h"
 
 constexpr int ITERATIONS = 10000;
-constexpr int WORKERS = 4;
+constexpr int WORKERS = 1;
 constexpr auto SLEEP_TIME = std::chrono::milliseconds(50);
 
 std::atomic<int> thread_counter = 0;
@@ -23,18 +23,21 @@ void logger_worker(elklog::ElkLogger* logger, std::vector<std::chrono::nanosecon
     times->reserve(iterations);
     twine::ThreadRtFlag rt_flag;
     int thread_id = thread_counter.fetch_add(1);
+    std::string str_thread_id = "000" + std::to_string(thread_id);
 
     while (iterations > 0)
     {
-        int one = std::rand();
-        int two = std::rand();
+        float one = std::rand() + iterations;
+        int two = std::rand() / 0.02f;
 
         std::atomic_thread_fence(std::memory_order_seq_cst);
-        auto start_time = twine::current_rt_time();
+        //auto start_time = twine::current_rt_time();
+        auto start_time = std::chrono::high_resolution_clock::now();
         std::atomic_thread_fence(std::memory_order_seq_cst);
-        logger->info("Logging rt from thread {}, {}, {}, {}", thread_id, one, two, iterations);
+        logger->info_rt("Logging rt from thread {}, {}, {}", str_thread_id.c_str(), one, two);
         std::atomic_thread_fence(std::memory_order_seq_cst);
-        auto stop_time = twine::current_rt_time() - start_time;
+        //auto stop_time = twine::current_rt_time() - start_time;
+        auto stop_time = std::chrono::high_resolution_clock::now() - start_time;
         std::atomic_thread_fence(std::memory_order_seq_cst);
 
         times->push_back(stop_time);
@@ -70,7 +73,7 @@ int main()
     logger.info("Starting logging");
     std::vector<std::thread> workers(WORKERS);
 
-    for (int i = 0; i < WORKERS; ++i)
+    /*for (int i = 0; i < WORKERS; ++i)
     {
         workers[i] = std::thread(&logger_worker, &logger, &(time_logs[i]), ITERATIONS);
     }
@@ -78,7 +81,9 @@ int main()
     for (auto& w : workers)
     {
         w.join();
-    }
+    }*/
+
+    logger_worker(&logger, &(time_logs[0]), ITERATIONS);
 
     std::vector<std::chrono::nanoseconds> times;
     for (auto& t : time_logs)
@@ -93,9 +98,8 @@ int main()
 
     logger.info("Finished logging");
 
-    std::cout << times.size() << std::endl;
-
-    std::cout << "Min: " << min_time.count() << "ns, max: " << max_time.count() << " ns, avg: " << avg_time.count() << std::endl;
+    std::cout << "Min: " << min_time.count() << "ns, max: " << max_time.count() << " ns, avg: "
+    << avg_time.count() << ", median: " << times.at(times.size() / 2).count() << std::endl;
 
     return 0;
 }

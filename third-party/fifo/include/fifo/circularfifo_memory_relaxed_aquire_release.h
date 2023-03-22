@@ -113,7 +113,11 @@ bool CircularFifo<Element, Size>::isLockFree() const
 template<typename Element, size_t Size>
 size_t CircularFifo<Element, Size>::increment(size_t idx) const
 {
-  return (idx + 1) % Capacity;
+  auto new_idx = idx + 1;
+  if (new_idx >= Capacity)
+      new_idx = 0;
+  return new_idx;
+  //return (idx + 1) % Capacity;
 }
 
 } // memory_relaxed_aquire_release
