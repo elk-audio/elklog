@@ -117,7 +117,6 @@ size_t CircularFifo<Element, Size>::increment(size_t idx) const
   if (new_idx >= Capacity)
       new_idx = 0;
   return new_idx;
-  //return (idx + 1) % Capacity;
 }
 
 } // memory_relaxed_aquire_release
