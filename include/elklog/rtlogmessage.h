@@ -40,22 +40,13 @@ public:
 
     RtLogMessage() :
         _level(RtLogLevel::INFO),
-        _timestamp(std::chrono::nanoseconds(0))
-        //_length(0)
+        _timestamp(std::chrono::nanoseconds(0)),
+        _length(0)
     {
-        _buffer.fill('\0');
-        //_buffer[0] = '\0';
+        _buffer[0] = '\0';
     }
 
-    // TODO - Keep? Not used in elklog.
-    /*RtLogMessage(RtLogLevel level, std::chrono::nanoseconds timestamp, const char* message) :
-        _level(level),
-        _timestamp(timestamp)
-    {
-        _set_message_str(message);
-    }*/
-
-    virtual ~RtLogMessage() = default;
+    ~RtLogMessage() = default;
 
     RtLogMessage& operator=(const RtLogMessage& rhs)
     {
@@ -65,17 +56,18 @@ public:
         }
         _level = rhs._level;
         _timestamp = rhs._timestamp;
-        //_length = rhs._length;
-        _set_message_str(rhs._buffer.data());
+        _length = rhs._length;
 
-        //std::copy(rhs._buffer.begin(), rhs._buffer.begin() + rhs._length, _buffer.begin());
-        //_set_message_str(rhs._buffer.begin(), rhs._buffer.begin() + rhs._length);
+        std::copy(rhs._buffer.begin(), rhs._buffer.begin() + rhs._length + 1, _buffer.begin());
         return *this;
     }
 
+    /*
+    * @brief Returns a null-terminated string with a formatted message.
+    */
     const char* message() const
     {
-        return &_buffer[0];
+        return _buffer.data();
     }
 
     RtLogLevel level() const
@@ -88,49 +80,36 @@ public:
         return _timestamp;
     }
 
+    /*
+     * @brief Returns the length of the formatted message excluding null termination
+     */
+    size_t length() const
+    {
+        return _length;
+    }
+
     /**
-     * @brief Convenience method to reset a message contents,
-     *        useful to reuse a message object.
+     * @brief Set the log message string with formatting
      */
     template<typename... Args>
-    void reset(RtLogLevel level, std::chrono::nanoseconds timestamp,
-               const char* format_str, Args&&... args)
+    void set_message(RtLogLevel level, std::chrono::nanoseconds timestamp,
+                     const char* format_str, Args&&... args)
     {
-        fmt::memory_buffer temp_buffer;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-        fmt::format_to(temp_buffer, format_str, args...);
-#pragma GCC diagnostic pop
-        // Add null-termination character
-        temp_buffer.push_back(0);
-        //_set_message_str(temp_buffer.begin(), end + 1);
-        _set_message_str(&temp_buffer[0]);
         _level = level;
         _timestamp = timestamp;
+        auto end = fmt::format_to_n(_buffer.data(), buffer_len - 1, format_str, args...);
+
+        // Add null-termination character
+        *end.out = '\0';
+        _length = std::distance(_buffer.data(), end.out);
     }
 
 private:
-    void _set_message_str(const char* message)
-    {
-        std::strncpy(_buffer.data(), message, buffer_len);
-        //_length = std::strlen(message);
-    }
-
     RtLogLevel _level;
     std::chrono::nanoseconds _timestamp;
-    //size_t  _length;
+    int  _length;
     std::array<char, buffer_len> _buffer;
-
-    void _set_message_str(const char* message_start, const char* message_end)
-    {
-        std::copy(message_start, message_end, _buffer.data());
-        //_length = std::distance(message_start, message_end);
-    }
 };
-
-static_assert(std::is_trivially_copyable<RtLogLevel>::value);
-static_assert(std::is_trivially_copyable<std::chrono::nanoseconds>::value);
-static_assert(std::is_trivially_copyable<std::array<char,100>>::value);
 
 template<size_t buffer_len>
 inline std::ostream& operator << (std::ostream& o, const RtLogMessage<buffer_len>& m)

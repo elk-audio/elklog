@@ -12,7 +12,7 @@
 #include "../twine/src/twine_internal.h"
 
 constexpr int ITERATIONS = 30000;
-constexpr int WORKERS = 1;
+constexpr int WORKERS = 4;
 constexpr auto SLEEP_TIME = std::chrono::milliseconds(50);
 
 std::atomic<int> thread_counter = 0;
@@ -42,7 +42,6 @@ void logger_worker(elklog::ElkLogger* logger, std::vector<std::chrono::nanosecon
 
         times->push_back(stop_time);
         iterations--;
-        //std::this_thread::sleep_for(SLEEP_TIME + std::chrono::milliseconds(thread_id));
 
         if (iterations % 100 == 0)
         {
@@ -73,7 +72,7 @@ int main()
     logger.info("Starting logging");
     std::vector<std::thread> workers(WORKERS);
 
-    /*for (int i = 0; i < WORKERS; ++i)
+    for (int i = 0; i < WORKERS; ++i)
     {
         workers[i] = std::thread(&logger_worker, &logger, &(time_logs[i]), ITERATIONS);
     }
@@ -81,26 +80,26 @@ int main()
     for (auto& w : workers)
     {
         w.join();
-    }*/
-
-    logger_worker(&logger, &(time_logs[0]), ITERATIONS);
-
-    std::vector<std::chrono::nanoseconds> times;
-    for (auto& t : time_logs)
-    {
-        times.insert(times.end(), t.begin(), t.end());
     }
 
+    //logger_worker(&logger, &(time_logs[0]), ITERATIONS);
 
-    std::sort(times.begin(), times.end());
-    auto min_time = times.front();
-    auto max_time = times.back();
-    auto avg_time = std::accumulate(times.begin(), times.end(), std::chrono::nanoseconds(0)) / times.size();
+    std::vector<std::chrono::nanoseconds> recs;
+    for (auto& t : time_logs)
+    {
+        recs.insert(recs.end(), t.begin(), t.end());
+    }
+
+    std::sort(recs.begin(), recs.end());
+    auto min_time = recs.front();
+    auto max_time = recs.back();
+    auto med_time = recs.at(recs.size() / 2);
+    auto avg_time = std::accumulate(recs.begin(), recs.end(), std::chrono::nanoseconds(0)) / recs.size();
 
     logger.info("Finished logging");
 
     std::cout << "Min: " << min_time.count() << "ns, max: " << max_time.count() << " ns, avg: "
-    << avg_time.count() << ", median: " << times.at(times.size() / 2).count() << std::endl;
+              << avg_time.count() << ", median: " << med_time.count() << std::endl;
 
     return 0;
 }

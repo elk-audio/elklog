@@ -6,7 +6,8 @@ enable_testing()
 #  Test Files  #
 ################
 
-SET(TEST_FILES unittests/elklog_test.cpp)
+SET(TEST_FILES unittests/elklog_test.cpp
+               unittests/rtlogmessage_test.cpp)
 
 #################################
 #  Statically linked libraries  #
