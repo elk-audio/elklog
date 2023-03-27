@@ -1,7 +1,7 @@
 #include "elklog/static_logger.h"
 
-namespace elklog{
+namespace elklog {
 
 ElkLogger* StaticLogger::public_instance;
 
-}
+} // namespace elklog

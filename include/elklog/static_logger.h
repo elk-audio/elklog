@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Modern Ancient Instruments Networked AB, dba Elk
+ * Copyright 2020-2023 Elk Audio AB
  * ElkLog is free software: you can redistribute it and/or modify it under the terms
  * of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
@@ -33,15 +33,13 @@
  * spdlog supports ostream style too, but that doesn't work with
  * ELKLOG_DISABLE_LOGGING unfortunately
  *
- * @copyright Copyright 2020-2023 Elk AB, Stockholm
+ * @copyright Copyright 2020-2023 Elk Audio AB, Stockholm
  */
 
 #ifndef STATIC_LOGGER_H
 #define STATIC_LOGGER_H
 
 #include "elk_logger.h"
-
-//#define SPDLOG_DEBUG_ON // TODO - needed?
 
 /* log macros */
 #ifndef ELKLOG_DISABLE_LOGGING
