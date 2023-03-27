@@ -37,8 +37,7 @@ TEST(RtLogMessageTest, TestMaxSize)
 {
     RtLogMessage<24> module_under_test;
 
-    module_under_test
-            .set_message(RtLogLevel::WARNING, std::chrono::nanoseconds(123), "Test message is too {}, {}", "long and will be clipped", 1);
+    module_under_test.set_message(RtLogLevel::WARNING, std::chrono::nanoseconds(123), "Test message is too {}, {}", "long and will be clipped", 1);
 
     EXPECT_STREQ("Test message is too lon", module_under_test.message());
     EXPECT_EQ(std::chrono::nanoseconds(123), module_under_test.timestamp());
