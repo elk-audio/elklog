@@ -105,7 +105,7 @@ public:
      *         for a human-readable output error string.
      */
     Status initialize(const std::string& log_file_path,
-                      const std::string& logger_name = "\"elk_logger",
+                      const std::string& logger_name,
                       std::chrono::seconds flush_interval = std::chrono::seconds(0),
                       bool drop_logger_if_duplicate = false,
                       int max_files = 1)
