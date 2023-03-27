@@ -35,9 +35,18 @@ set(ELKLOG_RT_QUEUE_SIZE 1024 CACHE STRING "Size of realtime log queue")
 
 set(TWINE_WITH_TESTS OFF CACHE BOOL "" FORCE)
 
-if (ELKLOG_USE_INCLUDED_TWINE)
+if (${ELKLOG_USE_INCLUDED_TWINE})
+    set(TWINE_WITH_TESTS OFF CACHE BOOL "")
     add_subdirectory(twine)
+    set(TWINE_LIB twine)
+else()
+    find_path(TWINE_PATH NAMES "twine/twine.h")
+    find_library(TWINE_LIB
+                 NAMES twine
+                 PATHS /usr/lib /usr/local/lib
+                 )
 endif()
+
 add_subdirectory(third-party)
 
 ###################
@@ -45,7 +54,7 @@ add_subdirectory(third-party)
 ###################
 
 add_library(elklog STATIC src/elklog.cpp)
-target_include_directories(elklog PUBLIC include)
+target_include_directories(elklog PUBLIC include ${TWINE_PATH})
 set_target_properties(elklog spdlog PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_compile_features(elklog PUBLIC cxx_std_17)
 target_compile_definitions(elklog PUBLIC -DELKLOG_FILE_SIZE=${ELKLOG_FILE_SIZE}
@@ -56,12 +65,7 @@ if(ELKLOG_MULTI_THREADED_RT_LOGGING)
     target_compile_definitions(elklog PUBLIC -DELKLOG_MULTI_THREADED_RT_LOGGING=1)
 endif()
 
-target_link_libraries(elklog fifo spdlog)
-if (ELKLOG_USE_INCLUDED_TWINE)
-    target_link_libraries(elklog twine)
-else()
-    target_link_libraries(elklog twine::twine)
-endif()
+target_link_libraries(elklog fifo spdlog ${TWINE_LIB})
 
 ###########
 #  Tests  #

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Modern Ancient Instruments Networked AB, dba Elk
+ * Copyright 2020-2023 Elk Audio AB
  * ElkLog is free software: you can redistribute it and/or modify it under the terms
  * of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
@@ -14,7 +14,7 @@
 
 /**
  * @brief Basic spinlock implementation safe for xenomai use
- * @copyright 2017-2023 Elk AB, Stockholm
+ * @copyright 2017-2023 Elk Audio AB, Stockholm
  */
 
 #ifndef ELKLOG_SPINLOCK_H

@@ -1,7 +1,7 @@
 # ElkLog
-Logger library with support for logging both non-realtime and realtime threads. ElkLog uses spdlog internally but adds features specifically for logging in Elk Audio OS. 
+Logger library with support for logging both non-realtime and realtime threads. ElkLog uses spdlog internally but adds features specifically for logging from Elk Audio OS. 
 
-Copyright 2020 - 2023 Modern Ancient Instruments Networked AB, dba Elk, Stockholm, Sweden.
+Copyright 2020-2023 Elk Audio AB, Stockholm, Sweden.
 
 ## Usage
 
@@ -36,5 +36,3 @@ if (elklog::StaticLogger::init_logger("log.txt", "example_logger", "debug") == e
 ## License
 
 ElkLog is licensed under the GNU General Public License v3 (“GPLv3”). Commercial licenses are available on request at tech@elk.audio.
-
-Copyright 2020-2023 Modern Ancient Instruments Networked AB, dba Elk, Stockholm, Sweden.

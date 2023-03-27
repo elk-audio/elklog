@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Modern Ancient Instruments Networked AB, dba Elk
+ * Copyright 2020-2023 Elk Audio AB
  * ElkLog is free software: you can redistribute it and/or modify it under the terms
  * of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
@@ -19,11 +19,11 @@
  *        Provides a unified logger abstraction that is safe to call in any context
  *        (either RT or non-RT).
  *
- * @copyright Copyright 2020-2023 Elk AB, Stockholm
+ * @copyright Copyright 2020-2023 Elk Audio AB, Stockholm
  */
 
-#ifndef ALOHA_LOGGER_H
-#define ALOHA_LOGGER_H
+#ifndef ELK_LOGGER_H
+#define ELK_LOGGER_H
 
 #include <memory>
 #include <string>
@@ -105,7 +105,7 @@ public:
      *         for a human-readable output error string.
      */
     Status initialize(const std::string& log_file_path,
-                      const std::string& logger_name = "\"elk_logger",
+                      const std::string& logger_name,
                       std::chrono::seconds flush_interval = std::chrono::seconds(0),
                       bool drop_logger_if_duplicate = false,
                       int max_files = 1)
@@ -340,7 +340,7 @@ private:
     std::promise<bool> _closed_promise;
 };
 
-} // namespace aloha
+} // namespace elklog
 
 #else // ELKLOG_DISABLE_LOGGING
 
@@ -387,8 +387,8 @@ public:
     {}
 };
 
-} // namespace aloha
+} // namespace elklog
 
 #endif // ELKLOG_DISABLE_LOGGING
 
-#endif /* ALOHA_LOGGER_H */
+#endif /* ELK_LOGGER_H */

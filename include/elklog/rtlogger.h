@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Modern Ancient Instruments Networked AB, dba Elk
+ * Copyright 2020-2023 Elk Audio AB
  * ElkLog is free software: you can redistribute it and/or modify it under the terms
  * of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
@@ -18,7 +18,7 @@
  *
  *        Not safe to log messages from multiple RT threads at the same time.
  *
- * @copyright Copyright 2020-2023 Elk AB, Stockholm
+ * @copyright Copyright 2020-2023 Elk Audio AB, Stockholm
  */
 
 #ifndef RT_LOGGER_H
@@ -152,11 +152,11 @@ private:
     RtLogLevel _min_log_level;
 };
 
-} // namespace aloha
+} // namespace elklog
 
 #else // ELKLOG_DISABLE_LOGGING
 
-namespace aloha {
+namespace elklog {
 
 template<size_t message_len, size_t fifo_size>
 class RtLogger
@@ -191,7 +191,7 @@ public:
 
 };
 
-} // namespace aloha
+} // namespace elklog
 
 #endif // ELKLOG_DISABLE_LOGGING
 

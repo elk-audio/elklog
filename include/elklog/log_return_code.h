@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Modern Ancient Instruments Networked AB, dba Elk
+ * Copyright 2020-2023 Elk Audio AB
  * ElkLog is free software: you can redistribute it and/or modify it under the terms
  * of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
@@ -15,7 +15,7 @@
 /**
  * @brief Log initialization return codes
  *
- * @copyright Copyright 2020-2023 Elk AB, Stockholm
+ * @copyright Copyright 2020-2023 Elk Audio AB, Stockholm
  */
 
 #ifndef LOG_RETURN_CODE_H
@@ -57,7 +57,7 @@ inline std::ostream& operator << (std::ostream& o, const Status& c)
     return o;
 }
 
-} // namespace aloha
+} // namespace elklog
 
 
 #endif /* LOG_RETURN_CODE_H */

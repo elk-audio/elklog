@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Modern Ancient Instruments Networked AB, dba Elk
+ * Copyright 2020-2023 Elk Audio AB
  * ElkLog is free software: you can redistribute it and/or modify it under the terms
  * of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
@@ -15,7 +15,7 @@
  /**
  * @brief RT-logger levels
  *
- * @copyright Copyright 2020-2023 Elk AB, Stockholm
+ * @copyright Copyright 2020-2023 Elk Audio AB, Stockholm
  */
 
 #ifndef RTLOGLEVEL_H
@@ -57,7 +57,7 @@ inline std::ostream& operator << (std::ostream& o, const RtLogLevel& l)
 }
 
 
-} // namespace aloha
+} // namespace elklog
 
 
 #endif /* RTLOGLEVEL_H */
