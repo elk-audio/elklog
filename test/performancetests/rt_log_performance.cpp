@@ -31,12 +31,10 @@ void logger_worker(elklog::ElkLogger* logger, std::vector<std::chrono::nanosecon
         float two = (float)std::rand() / 0.02f;
 
         std::atomic_thread_fence(std::memory_order_seq_cst);
-        //auto start_time = twine::current_rt_time();
         auto start_time = std::chrono::high_resolution_clock::now();
         std::atomic_thread_fence(std::memory_order_seq_cst);
         logger->info("Logging rt from thread {}, {}, {}", str_thread_id.c_str(), one, two);
         std::atomic_thread_fence(std::memory_order_seq_cst);
-        //auto stop_time = twine::current_rt_time() - start_time;
         auto stop_time = std::chrono::high_resolution_clock::now() - start_time;
         std::atomic_thread_fence(std::memory_order_seq_cst);
 
@@ -81,8 +79,6 @@ int main()
     {
         w.join();
     }
-
-    //logger_worker(&logger, &(time_logs[0]), ITERATIONS);
 
     std::vector<std::chrono::nanoseconds> recs;
     for (auto& t : time_logs)
