@@ -26,7 +26,7 @@ TEST(RtLogMessageTest, TestCopyingAndAssignment)
     EXPECT_EQ(14, module_under_test.length());
 
     // Exercise assignment operator and verify that copy is identical
-    RtLogMessage msg_2 = module_under_test;
+    RtLogMessage<512> msg_2 = module_under_test;
     EXPECT_EQ(std::chrono::nanoseconds(123), msg_2.timestamp());
     EXPECT_EQ(RtLogLevel::ERROR, msg_2.level());
     EXPECT_EQ(14, msg_2.length());
