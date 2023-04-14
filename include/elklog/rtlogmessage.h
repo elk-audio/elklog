@@ -23,6 +23,7 @@
 
 #include <chrono>
 #include <ostream>
+#include <array>
 #include <cstring>
 #include <cassert>
 
