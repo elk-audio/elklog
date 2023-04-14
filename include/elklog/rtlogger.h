@@ -93,7 +93,7 @@ public:
             return;
         }
         RtLogMessage<message_len> message;
-        message.reset(level, twine::current_rt_time(), format_str, args...);
+        message.set_message(level, twine::current_rt_time(), format_str, args...);
 
         _lock.lock();
         _queue.push(message);

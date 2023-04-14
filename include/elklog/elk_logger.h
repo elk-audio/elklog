@@ -221,6 +221,14 @@ public:
     }
 
     template<typename... Args>
+    void info_rt(const char* format_str, Args&&... args)
+    {
+        if (_closed == true) return;
+
+        _rt_logger->log_info(format_str, args...);
+    }
+
+    template<typename... Args>
     void warning(const char* format_str, Args&&... args)
     {
         if (_closed == true) return;
