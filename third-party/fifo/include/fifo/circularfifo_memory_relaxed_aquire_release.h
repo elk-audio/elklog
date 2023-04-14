@@ -114,8 +114,11 @@ template<typename Element, size_t Size>
 size_t CircularFifo<Element, Size>::increment(size_t idx) const
 {
   auto new_idx = idx + 1;
+  // if statement more efficient than modulo
   if (new_idx >= Capacity)
+  {
       new_idx = 0;
+  }
   return new_idx;
 }
 
