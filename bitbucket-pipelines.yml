@@ -1,0 +1,20 @@
+pipelines:
+  default:
+    - step:
+        name: Build elkog + tests and examples
+        image: ubuntu:22.04
+        script:
+          - apt-get update
+          - DEBIAN_FRONTEND=noninteractive apt-get install -qq --no-install-recommends make g++ cmake git ca-certificates ssh
+
+          - cmake --version
+          - git submodule update --init --recursive
+
+          - mkdir build
+          - cd build
+          - cmake .. -DCMAKE_BUILD_TYPE=Debug
+          - make elklog
+          - make elklog_example
+          - make static_example
+          - make unit_tests
+          - test/unit_tests
