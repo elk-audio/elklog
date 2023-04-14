@@ -8,7 +8,7 @@ pipelines:
           - DEBIAN_FRONTEND=noninteractive apt-get install -qq --no-install-recommends make g++ cmake git ca-certificates ssh
 
           # Rewrite the relative submodule url as bitbucket doesn't handle relative paths correctly
-          - sed -i 's/url = \.\.\(.*\)/url = git@bitbucket.org:'"$BITBUCKET_TEAM"'\1/g' .gitmodules
+          - sed -i 's/url = \.\.\(.*\)/url = git@bitbucket.org:$BITBUCKET_TEAM\1/g' .gitmodules
           - git submodule update --init --recursive
 
           - mkdir build
