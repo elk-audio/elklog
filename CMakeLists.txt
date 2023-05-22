@@ -38,13 +38,8 @@ set(TWINE_WITH_TESTS OFF CACHE BOOL "" FORCE)
 if (${ELKLOG_USE_INCLUDED_TWINE})
     set(TWINE_WITH_TESTS OFF CACHE BOOL "")
     add_subdirectory(twine)
-    set(TWINE_LIB twine)
 else()
-    find_path(TWINE_PATH NAMES "twine/twine.h")
-    find_library(TWINE_LIB
-                 NAMES twine
-                 PATHS /usr/lib /usr/local/lib
-                 )
+    find_package(twine 0.4.0)
 endif()
 
 add_subdirectory(third-party)
@@ -65,7 +60,7 @@ if(ELKLOG_MULTI_THREADED_RT_LOGGING)
     target_compile_definitions(elklog PUBLIC -DELKLOG_MULTI_THREADED_RT_LOGGING=1)
 endif()
 
-target_link_libraries(elklog fifo spdlog ${TWINE_LIB})
+target_link_libraries(elklog fifo spdlog twine::twine)
 
 ###########
 #  Tests  #
