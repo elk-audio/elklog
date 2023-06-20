@@ -74,10 +74,10 @@ public:
      * @param min_log_level Minimum logging level (debug, info, warning, error)
      * @param logger_type Choose between TYPE::TEXT (default), and JSON.
      */
-    ElkLogger(const std::string& min_log_level,
-              Type logger_type = Type::TEXT) :
-             _min_log_level(min_log_level),
-             _type(logger_type)
+    explicit ElkLogger(const std::string& min_log_level,
+                       Type logger_type = Type::TEXT) :
+                       _min_log_level(min_log_level),
+                       _type(logger_type)
     {
         _rt_logger = std::make_unique<RtLogger<RTLOG_MESSAGE_SIZE, RTLOG_QUEUE_SIZE>>(RT_CONSUMER_POLL_PERIOD,
                 std::bind(&ElkLogger::_rt_logger_callback, this, std::placeholders::_1),
@@ -100,7 +100,7 @@ public:
      *
      * @param log_file_path Log file (should be unique for each instance)
      *
-     * @return Error code. LogErrorCode::OK if all good.
+     * @return Error code. elklog::Status::OK if all good.
      *         Can be passed straight to << stream operators
      *         for a human-readable output error string.
      */
@@ -355,8 +355,8 @@ public:
         JSON
     };
 
-    ElkLogger([[maybe_unused]] const std::string& min_log_level,
-              [[maybe_unused]] Type logger_type = Type::TEXT)
+    explicit ElkLogger([[maybe_unused]] const std::string& min_log_level,
+                       [[maybe_unused]] Type logger_type = Type::TEXT)
     {}
 
     virtual ~ElkLogger() = default;
@@ -385,6 +385,28 @@ public:
     template<typename... Args>
     void error(const char* /*format_str*/, Args&&... /*args*/)
     {}
+
+    void close_log()
+    {
+    }
+
+    const std::string& min_log_level()
+    {
+        return _dummy;
+    }
+
+    const std::string& log_file_path()
+    {
+        return _dummy;
+    }
+
+    std::promise<bool>& closed_promise()
+    {
+        return _closed_promise;
+    }
+
+    std::string _dummy;
+    std::promise<bool> _closed_promise;
 };
 
 } // namespace elklog
