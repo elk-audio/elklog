@@ -359,7 +359,10 @@ public:
                        [[maybe_unused]] Type logger_type = Type::TEXT)
     {}
 
-    virtual ~ElkLogger() = default;
+    virtual ~ElkLogger()
+    {
+        _closed_promise.set_value(_closed);
+    }
 
     Status initialize([[maybe_unused]] const std::string& log_file_path,
                       [[maybe_unused]] const std::string& logger_name = "\"elk_logger",
@@ -388,6 +391,7 @@ public:
 
     void close_log()
     {
+        _closed = true;
     }
 
     const std::string& min_log_level()
@@ -406,6 +410,7 @@ public:
     }
 
     std::string _dummy;
+    bool _closed{false};
     std::promise<bool> _closed_promise;
 };
 
