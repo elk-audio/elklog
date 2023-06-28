@@ -221,14 +221,6 @@ public:
     }
 
     template<typename... Args>
-    void info_rt(const char* format_str, Args&&... args)
-    {
-        if (_closed == true) return;
-
-        _rt_logger->log_info(format_str, args...);
-    }
-
-    template<typename... Args>
     void warning(const char* format_str, Args&&... args)
     {
         if (_closed == true) return;
@@ -255,6 +247,21 @@ public:
         else
         {
             _logger_instance->error(format_str, args...);
+        }
+    }
+
+    template<typename... Args>
+    void critical(const char* format_str, Args&&... args)
+    {
+        if (_closed == true) return;
+
+        if (twine::is_current_thread_realtime())
+        {
+            _rt_logger->log_error(format_str, args...);
+        }
+        else
+        {
+            _logger_instance->critical(format_str, args...);
         }
     }
 

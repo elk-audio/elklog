@@ -68,7 +68,7 @@
 #define ELKLOG_LOG_INFO(msg, ...)          elklog::StaticLogger::public_instance->info("{}" msg, local_log_prefix, ##__VA_ARGS__)
 #define ELKLOG_LOG_WARNING(msg, ...)       elklog::StaticLogger::public_instance->warning("{}" msg, local_log_prefix, ##__VA_ARGS__)
 #define ELKLOG_LOG_ERROR(msg, ...)         elklog::StaticLogger::public_instance->error("{}" msg, local_log_prefix, ##__VA_ARGS__)
-#define ELKLOG_LOG_CRITICAL(msg, ...)      elklog::StaticLogger::public_instance->error("{}" msg, local_log_prefix, ##__VA_ARGS__)
+#define ELKLOG_LOG_CRITICAL(msg, ...)      elklog::StaticLogger::public_instance->critical("{}" msg, local_log_prefix, ##__VA_ARGS__)
 
 #ifdef ELKLOG_ENABLE_DEBUG_FILE_AND_LINE_NUM
 #define ELKLOG_LOG_DEBUG_IF(condition, msg, ...) if (condition) { elklog::StaticLogger::public_instance->debug_if(condition, "{}" msg " - [@{} #{}]", ##__VA_ARGS__, __FILE__ , __LINE__); }
@@ -78,7 +78,7 @@
 #define ELKLOG_LOG_INFO_IF(condition, msg, ...)     if (condition) { elklog::StaticLogger::public_instance->info("{}" msg, local_log_prefix, ##__VA_ARGS__); }
 #define ELKLOG_LOG_WARNING_IF(condition, msg, ...)  if (condition) { elklog::StaticLogger::public_instance->warning("{}" msg, local_log_prefix, ##__VA_ARGS__); }
 #define ELKLOG_LOG_ERROR_IF(condition, msg, ...)    if (condition) { elklog::StaticLogger::public_instance->error("{}" msg, local_log_prefix, ##__VA_ARGS__); }
-#define ELKLOG_LOG_CRITICAL_IF(condition, msg, ...) if (condition) { elklog::StaticLogger::public_instance->error("{}" msg, local_log_prefix, ##__VA_ARGS__); }
+#define ELKLOG_LOG_CRITICAL_IF(condition, msg, ...) if (condition) { elklog::StaticLogger::public_instance->critical("{}" msg, local_log_prefix, ##__VA_ARGS__); }
 
 namespace elklog {
 
