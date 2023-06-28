@@ -133,7 +133,7 @@ public:
         }
         auto log_level = level_map[log_level_lowercase];
         spdlog::set_level(log_level);
-        spdlog::flush_on(log_level);
+        spdlog::flush_on(spdlog::level::err);
 
         // Check for already registered logger
         auto possible_logger = spdlog::get(logger_name);

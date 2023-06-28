@@ -24,10 +24,11 @@
 
 #include <atomic>
 
+namespace elklog {
+
 // since std::hardware_destructive_interference_size is not yet supported in GCC 11
 constexpr int ASSUMED_CACHE_LINE_SIZE = 64;
 
-namespace elklog {
 /**
  * @brief Simple rt-safe test-and-set spinlock
  */
