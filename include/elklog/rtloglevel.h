@@ -21,6 +21,10 @@
 #ifndef RTLOGLEVEL_H
 #define RTLOGLEVEL_H
 
+#ifdef DEBUG
+#undef DEBUG
+#endif
+
 #include <ostream>
 
 namespace elklog {
