@@ -30,14 +30,14 @@ enum class RtLogLevel : int
     ERROR,
     WARNING,
     INFO,
-    DEBUG
+    DBG
 };
 
 inline std::ostream& operator << (std::ostream& o, const RtLogLevel& l)
 {
     switch (l)
     {
-    case RtLogLevel::DEBUG:
+    case RtLogLevel::DBG:
         o << "[debug]";
         break;
 

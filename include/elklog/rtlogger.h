@@ -55,7 +55,7 @@ public:
         _consumer_callback(consumer_callback)
     {
         std::map<std::string, RtLogLevel> level_map;
-        level_map["debug"] = RtLogLevel::DEBUG;
+        level_map["debug"] = RtLogLevel::DBG;
         level_map["info"] = RtLogLevel::INFO;
         level_map["warning"] = RtLogLevel::WARNING;
         level_map["error"] = RtLogLevel::ERROR;
@@ -103,7 +103,7 @@ public:
     template<typename... Args>
     void log_debug(const char* format_str, Args&&... args)
     {
-        log<RtLogLevel::DEBUG>(format_str, args...);
+        log<RtLogLevel::DBG>(format_str, args...);
     }
 
     template<typename... Args>

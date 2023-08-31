@@ -318,7 +318,7 @@ private:
 
         switch (msg.level())
         {
-        case RtLogLevel::DEBUG:
+        case RtLogLevel::DBG:
             _logger_instance->debug("{}", msg.message());
             break;
 
