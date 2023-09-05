@@ -162,6 +162,8 @@ public:
     {
         return Status::OK;
     }
+
+    static ElkLogger* public_instance;
 };
 }
 #endif
