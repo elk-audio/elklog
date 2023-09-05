@@ -110,29 +110,20 @@ public:
                       bool drop_logger_if_duplicate = false,
                       int max_files = 1)
     {
-        std::map<std::string, spdlog::level::level_enum> level_map;
-        level_map["debug"] = spdlog::level::debug;
-        level_map["info"] = spdlog::level::info;
-        level_map["warning"] = spdlog::level::warn;
-        level_map["error"] = spdlog::level::err;
-        level_map["critical"] = spdlog::level::critical;
-
         _log_file_path = log_file_path;
-
-        std::string log_level_lowercase = _min_log_level;
-        std::transform(_min_log_level.begin(), _min_log_level.end(), log_level_lowercase.begin(), ::tolower);
-
+        
+        Status status = set_log_level(_min_log_level);
+        
+        if (status != Status::OK)
+        {
+            return status;
+        }
+        
         if (flush_interval.count() > 0)
         {
             spdlog::flush_every(std::chrono::seconds(flush_interval));
         }
-
-        if (level_map.count(log_level_lowercase) <= 0)
-        {
-            return Status::INVALID_LOG_LEVEL;
-        }
-        auto log_level = level_map[log_level_lowercase];
-        spdlog::set_level(log_level);
+        
         spdlog::flush_on(spdlog::level::err);
 
         // Check for already registered logger
@@ -187,6 +178,33 @@ public:
             _logger_instance->info("Started logger: {}.", logger_name);
         }
 
+        return Status::OK;
+    }
+    
+    Status set_log_level(const std::string& min_log_level)
+    {
+        _rt_logger->set_log_level(min_log_level);
+        
+        std::map<std::string, spdlog::level::level_enum> level_map;
+        level_map["debug"] = spdlog::level::debug;
+        level_map["info"] = spdlog::level::info;
+        level_map["warning"] = spdlog::level::warn;
+        level_map["error"] = spdlog::level::err;
+        level_map["critical"] = spdlog::level::critical;
+        
+        _min_log_level = min_log_level;
+        
+        std::string log_level_lowercase = _min_log_level;
+        std::transform(_min_log_level.begin(), _min_log_level.end(), log_level_lowercase.begin(), ::tolower);
+
+        if (level_map.count(log_level_lowercase) <= 0)
+        {
+            return Status::INVALID_LOG_LEVEL;
+        }
+        
+        auto log_level = level_map[log_level_lowercase];
+        spdlog::set_level(log_level);
+        
         return Status::OK;
     }
 
@@ -376,6 +394,11 @@ public:
                       [[maybe_unused]] std::chrono::seconds flush_interval = std::chrono::seconds(0),
                       [[maybe_unused]] bool drop_logger_if_duplicate = false,
                       [[maybe_unused]] int max_files = 1)
+    {
+        return Status::OK;
+    }
+    
+    Status set_log_level(const std::string& min_log_level)
     {
         return Status::OK;
     }
