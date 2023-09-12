@@ -54,23 +54,8 @@ public:
              const std::string& min_log_level) :
         _consumer_callback(consumer_callback)
     {
-        std::map<std::string, RtLogLevel> level_map;
-        level_map["debug"] = RtLogLevel::DBG;
-        level_map["info"] = RtLogLevel::INFO;
-        level_map["warning"] = RtLogLevel::WARNING;
-        level_map["error"] = RtLogLevel::ERROR;
+        set_log_level(min_log_level);
 
-        std::string log_level_lowercase = min_log_level;
-        std::transform(min_log_level.begin(), min_log_level.end(), log_level_lowercase.begin(), ::tolower);
-
-        if (level_map.count(log_level_lowercase) > 0)
-        {
-            _min_log_level = level_map[log_level_lowercase];
-        }
-        else
-        {
-            _min_log_level = RtLogLevel::INFO;
-        }
         _sleep_period = std::chrono::milliseconds(consumer_poll_period);
         _consumer_running.store(true);
         _consumer_thread = std::thread(&RtLogger::_consumer_worker, this);
@@ -82,6 +67,27 @@ public:
         if (_consumer_thread.joinable())
         {
             _consumer_thread.join();
+        }
+    }
+    
+    void set_log_level(const std::string& min_log_level)
+    {
+        std::map<std::string, RtLogLevel> level_map;
+        level_map["debug"] = RtLogLevel::DBG;
+        level_map["info"] = RtLogLevel::INFO;
+        level_map["warning"] = RtLogLevel::WARNING;
+        level_map["error"] = RtLogLevel::ERROR;
+        
+        std::string log_level_lowercase = min_log_level;
+        std::transform(min_log_level.begin(), min_log_level.end(), log_level_lowercase.begin(), ::tolower);
+
+        if (level_map.count(log_level_lowercase) > 0)
+        {
+            _min_log_level = level_map[log_level_lowercase];
+        }
+        else
+        {
+            _min_log_level = RtLogLevel::INFO;
         }
     }
 
