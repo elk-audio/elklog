@@ -37,16 +37,18 @@ set(ELKLOG_RT_QUEUE_SIZE 1024 CACHE STRING "Size of realtime log queue")
 set(TWINE_WITH_TESTS OFF CACHE BOOL "" FORCE)
 
 if (${ELKLOG_TWINE_STATIC})
-    set(TWINE_LIB twine::twine_static)
+    set(TWINE_PACKAGE twine_static)
 else()
-    set(TWINE_LIB twine::twine)
+    set(TWINE_PACKAGE twine)
 endif()
+
+set(TWINE_LIB twine::${TWINE_PACKAGE})
 
 if (${ELKLOG_USE_INCLUDED_TWINE})
     set(TWINE_WITH_TESTS OFF CACHE BOOL "")
     add_subdirectory(twine)
 else()
-    find_package(${TWINE_LIB} 0.4.0)
+    find_package(${TWINE_PACKAGE} 0.4.0)
 endif()
 
 add_subdirectory(third-party)
