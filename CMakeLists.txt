@@ -22,6 +22,7 @@ project(elk-log
 
 option(ELKLOG_MULTI_THREADED_RT_LOGGING "Allow realtime logging from multiple threads simultaneously"  ON)
 option(ELKLOG_USE_INCLUDED_TWINE "If Elklog is included in a project that already include Twine, set this to OFF" ON)
+option(ELKLOG_TWINE_STATIC "Link against static version of TWINE library" OFF)
 option(ELKLOG_WITH_UNIT_TESTS "Build and run unit tests after compilation" ON)
 option(ELKLOG_WITH_EXAMPLES "Build included examples"  ON)
 
@@ -35,11 +36,17 @@ set(ELKLOG_RT_QUEUE_SIZE 1024 CACHE STRING "Size of realtime log queue")
 
 set(TWINE_WITH_TESTS OFF CACHE BOOL "" FORCE)
 
+if (${ELKLOG_TWINE_STATIC})
+    set(TWINE_LIB twine::twine_static)
+else()
+    set(TWINE_LIB twine::twine)
+endif()
+
 if (${ELKLOG_USE_INCLUDED_TWINE})
     set(TWINE_WITH_TESTS OFF CACHE BOOL "")
     add_subdirectory(twine)
 else()
-    find_package(twine 0.4.0)
+    find_package(${TWINE_LIB} 0.4.0)
 endif()
 
 add_subdirectory(third-party)
@@ -60,7 +67,7 @@ if(ELKLOG_MULTI_THREADED_RT_LOGGING)
     target_compile_definitions(elklog PUBLIC -DELKLOG_MULTI_THREADED_RT_LOGGING=1)
 endif()
 
-target_link_libraries(elklog elklog_fifo spdlog twine::twine elk::warningSuppressor)
+target_link_libraries(elklog elklog_fifo spdlog ${TWINE_LIB} elk::warningSuppressor)
 
 ###########
 #  Tests  #
