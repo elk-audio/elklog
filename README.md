@@ -35,4 +35,4 @@ if (elklog::StaticLogger::init_logger("log.txt", "example_logger", "debug") == e
 ```
 ## License
 
-ElkLog is licensed under the GNU General Public License v3 (“GPLv3”). Commercial licenses are available on request at tech@elk.audio.
+ElkLog is licensed under the MIT License (MIT). See the separate LICENSE file for the details. 
