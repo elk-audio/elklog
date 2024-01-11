@@ -398,7 +398,7 @@ public:
         return Status::OK;
     }
     
-    Status set_log_level(const std::string& min_log_level)
+    Status set_log_level([[maybe_unused]] const std::string& min_log_level)
     {
         return Status::OK;
     }
