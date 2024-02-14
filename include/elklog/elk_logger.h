@@ -39,10 +39,12 @@
 #ifndef ELKLOG_DISABLE_LOGGING
 #include "spdlog/spdlog.h"
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wreorder"
+#include <elk-warning-suppressor/warning_suppressor.hpp>
+
+ELK_PUSH_WARNING
+ELK_DISABLE_REORDER
 #include "spdlog/sinks/rotating_file_sink.h"
-#pragma GCC diagnostic pop
+ELK_POP_WARNING
 
 #include "spdlog/async.h"
 #include "spdlog/spdlog.h"
@@ -108,7 +110,7 @@ public:
                       const std::string& logger_name,
                       std::chrono::seconds flush_interval = std::chrono::seconds(0),
                       bool drop_logger_if_duplicate = false,
-                      int max_files = 1)
+                      size_t max_files = 1)
     {
         _log_file_path = log_file_path;
         
