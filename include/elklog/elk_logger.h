@@ -144,7 +144,7 @@ public:
             _logger_instance = spdlog::rotating_logger_mt<spdlog::async_factory>(logger_name,
                                                                                  log_file_path,
                                                                                  MAX_LOG_FILE_SIZE,
-                                                                                 max_files,
+                                                                                 static_cast<size_t>(max_files),
                                                                                  false);
         }
         catch (const std::exception &ex)
