@@ -39,7 +39,7 @@
 #ifndef ELKLOG_DISABLE_LOGGING
 #include "spdlog/spdlog.h"
 
-#include <elk-warning-suppressor/warning_suppressor.hpp>
+#include "elk-warning-suppressor/warning_suppressor.hpp"
 
 ELK_PUSH_WARNING
 ELK_DISABLE_REORDER
@@ -110,7 +110,7 @@ public:
                       const std::string& logger_name,
                       std::chrono::seconds flush_interval = std::chrono::seconds(0),
                       bool drop_logger_if_duplicate = false,
-                      size_t max_files = 1)
+                      int max_files = 1)
     {
         _log_file_path = log_file_path;
         
