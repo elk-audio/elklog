@@ -181,6 +181,14 @@ public:
         return Status::OK;
     }
 
+    /**
+     * @brief Append a custom spdlog sink to the logger. This allows for logging to multple
+     * sources from the same logging call. This MUST be called aftet the logger has been
+     * initialized.
+     *
+     * @param sink The sink to add.
+     * @return Status
+     */
     Status add_log_sink(spdlog::sink_ptr sink)
     {
         if (_logger_instance == nullptr)
