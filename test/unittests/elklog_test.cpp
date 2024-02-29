@@ -1,4 +1,5 @@
-#include <semaphore>
+#include <condition_variable>
+#include <mutex>
 
 #include "gtest/gtest.h"
 
@@ -88,18 +89,21 @@ TEST_F(InitLogTest, TestAddingSinkWithInit)
 TEST_F(InitLogTest, TestLoggingToSink)
 {
     bool logging_success = false;
-    std::binary_semaphore sem(0);
-    auto test_sink = std::make_shared<TestingSink>([&logging_success, &sem]
+    std::mutex mtx;
+    std::condition_variable cv;
+    auto test_sink = std::make_shared<TestingSink>([&logging_success, &mtx, &cv]
     (spdlog::level::level_enum level, const std::string& payload, const std::string& logger_name)
     {
+        std::scoped_lock lk(mtx);
         EXPECT_EQ(spdlog::level::info, level);
         EXPECT_EQ("Started logger: log_1.", payload);
         EXPECT_EQ("log_1", logger_name);
         logging_success = true;
-        sem.release();
+        cv.notify_all();
     });
     auto status = _module_under_test->initialize("./log.txt", "log_1");
     status = _module_under_test->add_log_sink(test_sink);
-    sem.acquire();
+    std::unique_lock lk(mtx);
+    cv.wait(lk);
     ASSERT_TRUE(logging_success);
 }
