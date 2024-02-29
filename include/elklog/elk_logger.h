@@ -180,7 +180,18 @@ public:
 
         return Status::OK;
     }
-    
+
+    Status add_log_sink(spdlog::sink_ptr sink)
+    {
+        if (_logger_instance == nullptr)
+        {
+            return Status::LOGGER_NOT_INITIALIZED;
+        }
+
+        _logger_instance->sinks().push_back(sink);
+        return Status::OK;
+    }
+
     Status set_log_level(const std::string& min_log_level)
     {
         _rt_logger->set_log_level(min_log_level);
