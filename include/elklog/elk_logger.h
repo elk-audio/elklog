@@ -182,7 +182,26 @@ public:
 
         return Status::OK;
     }
-    
+
+    /**
+     * @brief Append a custom spdlog sink to the logger. This allows for logging to multple
+     * sources from the same logging call. This MUST be called after the logger has been
+     * initialized.
+     *
+     * @param sink The sink to add.
+     * @return Status
+     */
+    Status add_log_sink(spdlog::sink_ptr sink)
+    {
+        if (_logger_instance == nullptr)
+        {
+            return Status::LOGGER_NOT_INITIALIZED;
+        }
+
+        _logger_instance->sinks().push_back(sink);
+        return Status::OK;
+    }
+
     Status set_log_level(const std::string& min_log_level)
     {
         _rt_logger->set_log_level(min_log_level);
