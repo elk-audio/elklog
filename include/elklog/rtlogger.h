@@ -69,7 +69,7 @@ public:
             _consumer_thread.join();
         }
     }
-    
+
     void set_log_level(const std::string& min_log_level)
     {
         std::map<std::string, RtLogLevel> level_map;
@@ -77,7 +77,7 @@ public:
         level_map["info"] = RtLogLevel::INFO;
         level_map["warning"] = RtLogLevel::WARNING;
         level_map["error"] = RtLogLevel::ERROR;
-        
+
         std::string log_level_lowercase = min_log_level;
         std::transform(min_log_level.begin(), min_log_level.end(), log_level_lowercase.begin(), ::tolower);
 

@@ -111,19 +111,19 @@ public:
                       int max_files = 1)
     {
         _log_file_path = log_file_path;
-        
+
         Status status = set_log_level(_min_log_level);
-        
+
         if (status != Status::OK)
         {
             return status;
         }
-        
+
         if (flush_interval.count() > 0)
         {
             spdlog::flush_every(std::chrono::seconds(flush_interval));
         }
-        
+
         spdlog::flush_on(spdlog::level::err);
 
         // Check for already registered logger
@@ -180,20 +180,20 @@ public:
 
         return Status::OK;
     }
-    
+
     Status set_log_level(const std::string& min_log_level)
     {
         _rt_logger->set_log_level(min_log_level);
-        
+
         std::map<std::string, spdlog::level::level_enum> level_map;
         level_map["debug"] = spdlog::level::debug;
         level_map["info"] = spdlog::level::info;
         level_map["warning"] = spdlog::level::warn;
         level_map["error"] = spdlog::level::err;
         level_map["critical"] = spdlog::level::critical;
-        
+
         _min_log_level = min_log_level;
-        
+
         std::string log_level_lowercase = _min_log_level;
         std::transform(_min_log_level.begin(), _min_log_level.end(), log_level_lowercase.begin(), ::tolower);
 
@@ -201,10 +201,10 @@ public:
         {
             return Status::INVALID_LOG_LEVEL;
         }
-        
+
         auto log_level = level_map[log_level_lowercase];
         spdlog::set_level(log_level);
-        
+
         return Status::OK;
     }
 
@@ -397,7 +397,7 @@ public:
     {
         return Status::OK;
     }
-    
+
     Status set_log_level([[maybe_unused]] const std::string& min_log_level)
     {
         return Status::OK;
