@@ -183,7 +183,7 @@ public:
 
     /**
      * @brief Append a custom spdlog sink to the logger. This allows for logging to multple
-     * sources from the same logging call. This MUST be called aftet the logger has been
+     * sources from the same logging call. This MUST be called after the logger has been
      * initialized.
      *
      * @param sink The sink to add.
