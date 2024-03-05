@@ -40,10 +40,12 @@
 #include "spdlog/spdlog.h"
 #include "spdlog/fmt/bundled/format.h"
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wreorder"
+#include "elk-warning-suppressor/warning_suppressor.hpp"
+
+ELK_PUSH_WARNING
+ELK_DISABLE_REORDER
 #include "spdlog/sinks/rotating_file_sink.h"
-#pragma GCC diagnostic pop
+ELK_POP_WARNING
 
 #include "spdlog/async.h"
 #include "spdlog/spdlog.h"
@@ -162,7 +164,7 @@ public:
             _logger_instance = spdlog::rotating_logger_mt<spdlog::async_factory>(logger_name,
                                                                                  log_file_path,
                                                                                  MAX_LOG_FILE_SIZE,
-                                                                                 max_files,
+                                                                                 static_cast<size_t>(max_files),
                                                                                  false);
         }
         catch (const std::exception &ex)

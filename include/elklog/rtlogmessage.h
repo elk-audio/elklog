@@ -27,8 +27,15 @@
 #include <cstring>
 #include <cassert>
 
+#include "elk-warning-suppressor/warning_suppressor.hpp"
+
+ELK_PUSH_WARNING
+ELK_DISABLE_DEPRECATED_DECLARATIONS
+ELK_DISABLE_UNKNOWN_PRAGMAS
+ELK_DISABLE_DEPRECATED
 #include <spdlog/fmt/bundled/format.h>
 #include <spdlog/fmt/bundled/chrono.h>
+ELK_POP_WARNING
 
 #include "rtloglevel.h"
 
@@ -102,13 +109,13 @@ public:
 
         // Add null-termination character
         *end.out = '\0';
-        _length = std::distance(_buffer.data(), end.out);
+        _length = static_cast<int>(std::distance(_buffer.data(), end.out));
     }
 
 private:
     RtLogLevel _level;
     std::chrono::nanoseconds _timestamp;
-    int  _length;
+    int _length;
     std::array<char, buffer_len> _buffer;
 };
 
