@@ -22,7 +22,6 @@
 #define LOG_RETURN_CODE_H
 
 #include <ostream>
-#include "fmt.h"
 
 namespace elklog {
 
@@ -33,8 +32,6 @@ enum class Status : int
     FAILED_TO_START_LOGGER = 2,
     INVALID_FLUSH_INTERVAL = 3
 };
-
-auto format_as(Status f) { return fmt::underlying(f); }
 
 inline std::ostream& operator << (std::ostream& o, const Status& c)
 {

@@ -39,3 +39,11 @@ TEST_F(InitLogTest, TestCreation)
     status = logger_3.initialize("log_3.txt", "log_1");
     ASSERT_EQ(Status::INVALID_LOG_LEVEL, status);
 }
+
+TEST_F(InitLogTest, TestCustomTypes)
+{
+    auto status = _module_under_test->initialize("./log.txt", "logger");
+    ASSERT_EQ(Status::OK, status);
+
+    _module_under_test->info("Logging a custom type: {}", status);
+}

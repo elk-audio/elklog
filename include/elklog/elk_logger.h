@@ -38,6 +38,7 @@
 
 #ifndef ELKLOG_DISABLE_LOGGING
 #include "spdlog/spdlog.h"
+#include "spdlog/fmt/bundled/format.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreorder"
@@ -49,12 +50,25 @@
 
 #include "rtlogger.h"
 
+template <typename EnumType>
+requires std::is_enum_v<EnumType>
+struct fmt::formatter<EnumType> : fmt::formatter<std::underlying_type_t<EnumType>>
+{
+    // Forwards the formatting by casting the enum to it's underlying type
+    auto format(const EnumType& enumValue, format_context& ctx) const
+    {
+        return fmt::formatter<std::underlying_type_t<EnumType>>::format(
+            static_cast<std::underlying_type_t<EnumType>>(enumValue), ctx);
+    }
+};
+
 namespace elklog {
 
 constexpr int RTLOG_MESSAGE_SIZE = ELKLOG_RT_MESSAGE_SIZE;
 constexpr int RTLOG_QUEUE_SIZE = ELKLOG_RT_QUEUE_SIZE;
 constexpr int MAX_LOG_FILE_SIZE = ELKLOG_FILE_SIZE;   // In bytes
 constexpr auto RT_CONSUMER_POLL_PERIOD = std::chrono::milliseconds(50);
+
 
 class ElkLogger
 {
