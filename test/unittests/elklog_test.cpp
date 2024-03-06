@@ -114,5 +114,4 @@ TEST_F(InitLogTest, TestLoggingToSink)
     std::unique_lock lk(mtx);
     cv.wait(lk);
     ASSERT_TRUE(logging_success);
->>>>>>> develop
 }
