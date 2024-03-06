@@ -30,7 +30,9 @@ enum class Status : int
     OK = 0,
     INVALID_LOG_LEVEL = 1,
     FAILED_TO_START_LOGGER = 2,
-    INVALID_FLUSH_INTERVAL = 3
+    INVALID_FLUSH_INTERVAL = 3,
+    LOGGER_NOT_INITIALIZED = 4
+
 };
 
 inline std::ostream& operator << (std::ostream& o, const Status& c)
@@ -47,6 +49,10 @@ inline std::ostream& operator << (std::ostream& o, const Status& c)
 
     case Status::INVALID_FLUSH_INTERVAL:
         o << "Invalid Flush interval";
+        break;
+
+    case Status::LOGGER_NOT_INITIALIZED:
+        o << "Logger is not initialized";
         break;
 
     case Status::FAILED_TO_START_LOGGER:

@@ -80,6 +80,8 @@
 #define ELKLOG_LOG_ERROR_IF(condition, msg, ...)    if (condition) { elklog::StaticLogger::public_instance->error("{}" msg, local_log_prefix, ##__VA_ARGS__); }
 #define ELKLOG_LOG_CRITICAL_IF(condition, msg, ...) if (condition) { elklog::StaticLogger::public_instance->critical("{}" msg, local_log_prefix, ##__VA_ARGS__); }
 
+#define ELKLOG_ADD_SINK(sink) elklog::StaticLogger::public_instance->add_log_sink(sink)
+
 namespace elklog {
 
 class StaticLogger
@@ -147,6 +149,7 @@ private:
 #define ELKLOG_LOG_WARNING_IF(...)
 #define ELKLOG_LOG_ERROR_IF(...)
 #define ELKLOG_LOG_CRITICAL_IF(...)
+#define ELKLOG_ADD_SINK(...)
 
 namespace elklog {
 
