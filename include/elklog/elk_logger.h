@@ -38,6 +38,7 @@
 
 #ifndef ELKLOG_DISABLE_LOGGING
 #include "spdlog/spdlog.h"
+#include "spdlog/fmt/bundled/format.h"
 
 #include "elk-warning-suppressor/warning_suppressor.hpp"
 
@@ -51,12 +52,31 @@ ELK_POP_WARNING
 
 #include "rtlogger.h"
 
+#if __cplusplus >= 202002L
+// newer versions of fmt library for C++20 requires a custom formatter
+// if we want to log simple enum types like error codes, see:
+// https://stackoverflow.com/a/69496952
+
+template <typename EnumType>
+requires std::is_enum_v<EnumType>
+struct fmt::formatter<EnumType> : fmt::formatter<std::underlying_type_t<EnumType>>
+{
+    // Forwards the formatting by casting the enum to it's underlying type
+    auto format(const EnumType& enumValue, format_context& ctx) const
+    {
+        return fmt::formatter<std::underlying_type_t<EnumType>>::format(
+            static_cast<std::underlying_type_t<EnumType>>(enumValue), ctx);
+    }
+};
+#endif // __cplusplus >= 202002L
+
 namespace elklog {
 
 constexpr int RTLOG_MESSAGE_SIZE = ELKLOG_RT_MESSAGE_SIZE;
 constexpr int RTLOG_QUEUE_SIZE = ELKLOG_RT_QUEUE_SIZE;
 constexpr int MAX_LOG_FILE_SIZE = ELKLOG_FILE_SIZE;   // In bytes
 constexpr auto RT_CONSUMER_POLL_PERIOD = std::chrono::milliseconds(50);
+
 
 class ElkLogger
 {
@@ -113,19 +133,19 @@ public:
                       int max_files = 1)
     {
         _log_file_path = log_file_path;
-        
+
         Status status = set_log_level(_min_log_level);
-        
+
         if (status != Status::OK)
         {
             return status;
         }
-        
+
         if (flush_interval.count() > 0)
         {
             spdlog::flush_every(std::chrono::seconds(flush_interval));
         }
-        
+
         spdlog::flush_on(spdlog::level::err);
 
         // Check for already registered logger
@@ -205,16 +225,16 @@ public:
     Status set_log_level(const std::string& min_log_level)
     {
         _rt_logger->set_log_level(min_log_level);
-        
+
         std::map<std::string, spdlog::level::level_enum> level_map;
         level_map["debug"] = spdlog::level::debug;
         level_map["info"] = spdlog::level::info;
         level_map["warning"] = spdlog::level::warn;
         level_map["error"] = spdlog::level::err;
         level_map["critical"] = spdlog::level::critical;
-        
+
         _min_log_level = min_log_level;
-        
+
         std::string log_level_lowercase = _min_log_level;
         std::transform(_min_log_level.begin(), _min_log_level.end(), log_level_lowercase.begin(), ::tolower);
 
@@ -222,10 +242,10 @@ public:
         {
             return Status::INVALID_LOG_LEVEL;
         }
-        
+
         auto log_level = level_map[log_level_lowercase];
         spdlog::set_level(log_level);
-        
+
         return Status::OK;
     }
 
@@ -418,7 +438,7 @@ public:
     {
         return Status::OK;
     }
-    
+
     Status set_log_level([[maybe_unused]] const std::string& min_log_level)
     {
         return Status::OK;

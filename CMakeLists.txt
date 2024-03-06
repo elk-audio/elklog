@@ -51,7 +51,7 @@ add_subdirectory(third-party)
 add_library(elklog STATIC src/elklog.cpp)
 target_include_directories(elklog PUBLIC include ${TWINE_PATH})
 set_target_properties(elklog spdlog PROPERTIES POSITION_INDEPENDENT_CODE ON)
-target_compile_features(elklog PUBLIC cxx_std_17)
+target_compile_features(elklog PUBLIC cxx_std_20)
 target_compile_definitions(elklog PUBLIC -DELKLOG_FILE_SIZE=${ELKLOG_FILE_SIZE}
                                          -DELKLOG_RT_MESSAGE_SIZE=${ELKLOG_RT_MESSAGE_SIZE}
                                          -DELKLOG_RT_QUEUE_SIZE=${ELKLOG_RT_QUEUE_SIZE})
