@@ -16,6 +16,8 @@ project(elk-log
         VERSION ${ELKLOG_VERSION_MAJOR}.${ELKLOG_VERSION_MINOR}.${ELKLOG_VERSION_REVISION}
         )
 
+set(CMAKE_CXX_STANDARD 20)
+
 ###################
 #  Build options  #
 ###################
