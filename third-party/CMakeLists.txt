@@ -12,5 +12,10 @@ set(SPDLOG_USE_STD_FORMAT OFF CACHE BOOL "" FORCE) # this also forces C++ 20, in
 set(SPDLOG_FMT_EXTERNAL OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(spdlog)
+
+if (MSVC)
+    target_compile_options(spdlog PRIVATE "/wd4996") #C4996: Deprecated warning.
+endif()
+
 add_subdirectory(fifo)
 

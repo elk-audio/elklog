@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.5)
 project(elk-log LANGUAGES CXX)
 #####################
 #  Project Version  #
@@ -67,6 +67,10 @@ target_compile_definitions(elklog PUBLIC -DELKLOG_FILE_SIZE=${ELKLOG_FILE_SIZE}
 
 if(ELKLOG_MULTI_THREADED_RT_LOGGING)
     target_compile_definitions(elklog PUBLIC -DELKLOG_MULTI_THREADED_RT_LOGGING=1)
+endif()
+
+if (MSVC)
+    target_compile_options(elklog PRIVATE "/wd4996") #C4996: Deprecated warning.
 endif()
 
 target_link_libraries(elklog elklog_fifo spdlog twine::${TWINE_LIB} elk::warningSuppressor)
