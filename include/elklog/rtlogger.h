@@ -131,7 +131,7 @@ public:
     }
 
     template<typename... Args>
-    void log_info(spdlog::string_view_t format_str, Args&&... args)
+    void log_info(spdlog::format_string_t<Args...> format_str, Args&&... args)
     {
         log<RtLogLevel::INFO>(format_str, args...);
     }
@@ -144,7 +144,6 @@ public:
     template<typename... Args>
     void log_warning(spdlog::format_string_t<Args...> format_str, Args&&... args)
     {
-        static_assert(std::is_constant_evaluated());
         log<RtLogLevel::WARNING>(format_str, std::forward<Args>(args)...);
     }
 
