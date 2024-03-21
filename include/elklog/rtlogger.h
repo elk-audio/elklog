@@ -26,6 +26,7 @@
 
 #include <string>
 #include <functional>
+#include <type_traits>
 
 #include "rtlogmessage.h"
 
@@ -36,6 +37,8 @@
 #include <chrono>
 #include <thread>
 #include <atomic>
+
+#include "spdlog/spdlog.h"
 
 #include "fifo/circularfifo_memory_relaxed_aquire_release.h"
 #include "twine/twine.h"
@@ -92,14 +95,29 @@ public:
     }
 
     template<RtLogLevel level, typename... Args>
-    void log(const char* format_str, Args&&... args)
+    void log(spdlog::format_string_t<Args...> format_str, Args&&... args)
     {
         if (_min_log_level < level)
         {
             return;
         }
         RtLogMessage<message_len> message;
-        message.set_message(level, twine::current_rt_time(), format_str, args...);
+        message.set_message(level, twine::current_rt_time(), format_str, std::forward<Args>(args)...);
+
+        _lock.lock();
+        _queue.push(message);
+        _lock.unlock();
+    }
+
+    template<RtLogLevel level>
+    void log(spdlog::string_view_t msg)
+    {
+        if (_min_log_level < level)
+        {
+            return;
+        }
+        RtLogMessage<message_len> message;
+        message.set_message(level, twine::current_rt_time(), msg);
 
         _lock.lock();
         _queue.push(message);
@@ -107,25 +125,31 @@ public:
     }
 
     template<typename... Args>
-    void log_debug(const char* format_str, Args&&... args)
+    void log_debug(spdlog::string_view_t format_str, Args&&... args)
     {
         log<RtLogLevel::DBG>(format_str, args...);
     }
 
     template<typename... Args>
-    void log_info(const char* format_str, Args&&... args)
+    void log_info(spdlog::string_view_t format_str, Args&&... args)
     {
         log<RtLogLevel::INFO>(format_str, args...);
     }
 
-    template<typename... Args>
-    void log_warning(const char* format_str, Args&&... args)
+    void log_info(spdlog::string_view_t msg)
     {
-        log<RtLogLevel::WARNING>(format_str, args...);
+        log<RtLogLevel::INFO>(msg);
     }
 
     template<typename... Args>
-    void log_error(const char* format_str, Args&&... args)
+    void log_warning(spdlog::format_string_t<Args...> format_str, Args&&... args)
+    {
+        static_assert(std::is_constant_evaluated());
+        log<RtLogLevel::WARNING>(format_str, std::forward<Args>(args)...);
+    }
+
+    template<typename... Args>
+    void log_error(spdlog::string_view_t format_str, Args&&... args)
     {
         log<RtLogLevel::ERROR>(format_str, args...);
     }
