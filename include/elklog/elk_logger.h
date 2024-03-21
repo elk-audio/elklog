@@ -252,89 +252,155 @@ public:
     template<typename... Args>
     void debug(spdlog::format_string_t<Args...> format_str, Args&&... args)
     {
-        if (_closed == true) return;
-
-        if (twine::is_current_thread_realtime())
+        if (!_closed)
         {
-            _rt_logger->log_debug(format_str, std::forward<Args>(args)...);
+            if (twine::is_current_thread_realtime())
+            {
+                _rt_logger->log_debug(format_str, std::forward<Args>(args)...);
+            }
+            else
+            {
+                _logger_instance->debug(format_str, std::forward<Args>(args)...);
+            }
         }
-        else
+    }
+
+    void debug(spdlog::string_view_t msg)
+    {
+        if (!_closed)
         {
-            _logger_instance->debug(format_str, std::forward<Args>(args)...);
+            if (twine::is_current_thread_realtime())
+            {
+                _rt_logger->log_debug(msg);
+            }
+            else
+            {
+                _logger_instance->debug(msg);
+            }
         }
     }
 
     template<typename... Args>
     void info(spdlog::format_string_t<Args...> format_str, Args&&... args)
     {
-        if (_closed == true) return;
-
-        if (twine::is_current_thread_realtime())
+        if (!_closed)
         {
-            _rt_logger->log_info(format_str, std::forward<Args>(args)...);
-        }
-        else
-        {
-            _logger_instance->info(format_str, std::forward<Args>(args)...);
+            if (twine::is_current_thread_realtime())
+            {
+                _rt_logger->log_info(format_str, std::forward<Args>(args)...);
+            }
+            else
+            {
+                _logger_instance->info(format_str, std::forward<Args>(args)...);
+            }
         }
     }
 
     void info(spdlog::string_view_t msg)
     {
-        if (_closed == true) return;
-
-        if (twine::is_current_thread_realtime())
+        if (!_closed)
         {
-            _rt_logger->log_info(msg);
-        }
-        else
-        {
-            _logger_instance->info(msg);
+            if (twine::is_current_thread_realtime())
+            {
+                _rt_logger->log_info(msg);
+            }
+            else
+            {
+                _logger_instance->info(msg);
+            }
         }
     }
 
     template<typename... Args>
     void warning(spdlog::format_string_t<Args...> format_str, Args&&... args)
     {
-        if (_closed == true) return;
-
-        if (twine::is_current_thread_realtime())
+        if (!_closed)
         {
-            _rt_logger->log_warning(format_str, std::forward<Args>(args)...);
+            if (twine::is_current_thread_realtime())
+            {
+                _rt_logger->log_warning(format_str, std::forward<Args>(args)...);
+            }
+            else
+            {
+                _logger_instance->warn(format_str, std::forward<Args>(args)...);
+            }
         }
-        else
+    }
+
+    void warning(spdlog::string_view_t msg)
+    {
+        if (!_closed)
         {
-            _logger_instance->warn(format_str, std::forward<Args>(args)...);
+            if (twine::is_current_thread_realtime())
+            {
+                _rt_logger->log_warning(msg);
+            }
+            else
+            {
+                _logger_instance->warn(msg);
+            }
         }
     }
 
     template<typename... Args>
     void error(spdlog::format_string_t<Args...> format_str, Args&&... args)
     {
-        if (_closed == true) return;
-
-        if (twine::is_current_thread_realtime())
+        if (!_closed)
         {
-            _rt_logger->log_error(format_str, std::forward<Args>(args)...);
+            if (twine::is_current_thread_realtime())
+            {
+                _rt_logger->log_error(format_str, std::forward<Args>(args)...);
+            }
+            else
+            {
+                _logger_instance->error(format_str, std::forward<Args>(args)...);
+            }
         }
-        else
+    }
+
+    void error(spdlog::string_view_t msg)
+    {
+        if (!_closed)
         {
-            _logger_instance->error(format_str, std::forward<Args>(args)...);
+            if (twine::is_current_thread_realtime())
+            {
+                _rt_logger->log_error(msg);
+            }
+            else
+            {
+                _logger_instance->error(msg);
+            }
         }
     }
 
     template<typename... Args>
     void critical(spdlog::format_string_t<Args...> format_str, Args&&... args)
     {
-        if (_closed == true) return;
-
-        if (twine::is_current_thread_realtime())
+        if (!_closed)
         {
-            _rt_logger->log_error(format_str, std::forward<Args>(args)...);
+            if (twine::is_current_thread_realtime())
+            {
+                _rt_logger->log_error(format_str, std::forward<Args>(args)...);
+            }
+            else
+            {
+                _logger_instance->critical(format_str, std::forward<Args>(args)...);
+            }
         }
-        else
+    }
+
+    void critical(spdlog::string_view_t msg)
+    {
+        if (!_closed)
         {
-            _logger_instance->critical(format_str, std::forward<Args>(args)...);
+            if (twine::is_current_thread_realtime())
+            {
+                _rt_logger->log_error(msg);
+            }
+            else
+            {
+                _logger_instance->critical(msg);
+            }
         }
     }
 

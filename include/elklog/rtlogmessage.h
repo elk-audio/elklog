@@ -107,9 +107,8 @@ public:
         _level = level;
         _timestamp = timestamp;
         auto end = fmt::format_to_n(_buffer.data(), buffer_len - 1, format_str, std::forward<Args>(args)...);
-        //auto end = fmt::format_to(_buffer.data(), format_str, args...);
 
-        //Add null-termination character
+        // Add null-termination character
         *end.out = '\0';
         _length = static_cast<int>(std::distance(_buffer.data(), end.out));
     }
@@ -119,11 +118,13 @@ public:
     {
         _level = level;
         _timestamp = timestamp;
+        // This specialization is for single string messages without need for formatting
+        // In this case we simply copy the string to the buffer without invoking fmt::format()
         auto end = std::copy_n(msg.begin(), std::min(msg.size(), buffer_len - 1), _buffer.data());
 
-        //Add null-termination character
+        // Add null-termination character
         *end = '\0';
-        _length = msg.size() + 1;
+        _length = static_cast<int>(msg.size()) + 1;
     }
 
 
