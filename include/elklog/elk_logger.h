@@ -264,6 +264,20 @@ public:
         }
     }
 
+    void debug(spdlog::string_view_t msg)
+    {
+        if (_closed == true) return;
+
+        if (twine::is_current_thread_realtime())
+        {
+            _rt_logger->log_debug(msg);
+        }
+        else
+        {
+            _logger_instance->debug(msg);
+        }
+    }
+
     template<typename... Args>
     void info(spdlog::format_string_t<Args...> format_str, Args&&... args)
     {
@@ -308,6 +322,20 @@ public:
         }
     }
 
+    void warning(spdlog::string_view_t msg)
+    {
+        if (_closed == true) return;
+
+        if (twine::is_current_thread_realtime())
+        {
+            _rt_logger->log_warning(msg);
+        }
+        else
+        {
+            _logger_instance->warn(msg);
+        }
+    }
+
     template<typename... Args>
     void error(spdlog::format_string_t<Args...> format_str, Args&&... args)
     {
@@ -323,6 +351,20 @@ public:
         }
     }
 
+    void error(spdlog::string_view_t msg)
+    {
+        if (_closed == true) return;
+
+        if (twine::is_current_thread_realtime())
+        {
+            _rt_logger->log_error(msg);
+        }
+        else
+        {
+            _logger_instance->error(msg);
+        }
+    }
+
     template<typename... Args>
     void critical(spdlog::format_string_t<Args...> format_str, Args&&... args)
     {
@@ -335,6 +377,20 @@ public:
         else
         {
             _logger_instance->critical(format_str, std::forward<Args>(args)...);
+        }
+    }
+
+    void critical(spdlog::string_view_t msg)
+    {
+        if (_closed == true) return;
+
+        if (twine::is_current_thread_realtime())
+        {
+            _rt_logger->log_error(msg);
+        }
+        else
+        {
+            _logger_instance->critical(msg);
         }
     }
 

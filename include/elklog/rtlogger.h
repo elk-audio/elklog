@@ -125,9 +125,14 @@ public:
     }
 
     template<typename... Args>
-    void log_debug(spdlog::string_view_t format_str, Args&&... args)
+    void log_debug(spdlog::format_string_t<Args...> format_str, Args&&... args)
     {
         log<RtLogLevel::DBG>(format_str, args...);
+    }
+
+    void log_debug(spdlog::string_view_t msg)
+    {
+        log<RtLogLevel::DBG>(msg);
     }
 
     template<typename... Args>
@@ -147,12 +152,21 @@ public:
         log<RtLogLevel::WARNING>(format_str, std::forward<Args>(args)...);
     }
 
+    void log_warning(spdlog::string_view_t msg)
+    {
+        log<RtLogLevel::WARNING>(msg);
+    }
+
     template<typename... Args>
-    void log_error(spdlog::string_view_t format_str, Args&&... args)
+    void log_error(spdlog::format_string_t<Args...> format_str, Args&&... args)
     {
         log<RtLogLevel::ERROR>(format_str, args...);
     }
 
+    void log_error(spdlog::string_view_t msg)
+    {
+        log<RtLogLevel::ERROR>(msg);
+    }
 
 private:
     void _consumer_worker()
