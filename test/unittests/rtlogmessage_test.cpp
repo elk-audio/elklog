@@ -14,7 +14,7 @@ TEST(RtLogMessageTest, TestCreation)
     ASSERT_STREQ("", module_under_test.message());
 }
 
-TEST(RtLogMessageTest, TestCopyingAndAssignment)
+TEST(RtLogMessageTest, TestCopyingAndAssignmentFormatted)
 {
     RtLogMessage<512> module_under_test;
 
@@ -31,6 +31,18 @@ TEST(RtLogMessageTest, TestCopyingAndAssignment)
     EXPECT_EQ(RtLogLevel::ERROR, msg_2.level());
     EXPECT_EQ(14, msg_2.length());
     EXPECT_STREQ(module_under_test.message(), msg_2.message());
+}
+
+TEST(RtLogMessageTest, TestCopyingAndAssignment)
+{
+    RtLogMessage<512> module_under_test;
+
+    module_under_test.set_message(RtLogLevel::INFO, std::chrono::nanoseconds(456), "Test single message");
+
+    EXPECT_STREQ("Test single message", module_under_test.message());
+    EXPECT_EQ(std::chrono::nanoseconds(456), module_under_test.timestamp());
+    EXPECT_EQ(RtLogLevel::INFO, module_under_test.level());
+    EXPECT_EQ(20, module_under_test.length());
 }
 
 TEST(RtLogMessageTest, TestMaxSize)
