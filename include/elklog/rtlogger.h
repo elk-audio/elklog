@@ -127,7 +127,7 @@ public:
     template<typename... Args>
     void log_debug(spdlog::format_string_t<Args...> format_str, Args&&... args)
     {
-        log<RtLogLevel::DBG>(format_str, args...);
+        log<RtLogLevel::DBG>(format_str, std::forward<Args>(args)...);
     }
 
     void log_debug(spdlog::string_view_t msg)
@@ -138,7 +138,7 @@ public:
     template<typename... Args>
     void log_info(spdlog::format_string_t<Args...> format_str, Args&&... args)
     {
-        log<RtLogLevel::INFO>(format_str, args...);
+        log<RtLogLevel::INFO>(format_str, std::forward<Args>(args)...);
     }
 
     void log_info(spdlog::string_view_t msg)
@@ -160,7 +160,7 @@ public:
     template<typename... Args>
     void log_error(spdlog::format_string_t<Args...> format_str, Args&&... args)
     {
-        log<RtLogLevel::ERROR>(format_str, args...);
+        log<RtLogLevel::ERROR>(format_str, std::forward<Args>(args)...);
     }
 
     void log_error(spdlog::string_view_t msg)
