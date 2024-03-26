@@ -66,14 +66,15 @@ inline std::ostream& operator << (std::ostream& o, const Status& c)
 } // namespace elklog
 
 #ifndef ELKLOG_DISABLE_LOGGING
-// Note this is explicitly defined outside  the elklog namespace
-template <> struct fmt::formatter<elklog::Status>: formatter<string_view> {
+// Note this is explicitly defined outside the elklog namespace
+template <>
+struct fmt::formatter<elklog::Status>: public formatter<string_view>
+{
     // parse is inherited from formatter<string_view>.
-
     auto format(elklog::Status c, format_context& ctx) const;
 };
 
-auto fmt::formatter<elklog::Status>::format(elklog::Status c, format_context& ctx) const
+auto inline fmt::formatter<elklog::Status>::format(elklog::Status c, format_context& ctx) const
 {
     switch (c)
     {
