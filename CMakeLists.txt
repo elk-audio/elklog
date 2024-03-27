@@ -69,6 +69,10 @@ if(ELKLOG_MULTI_THREADED_RT_LOGGING)
     target_compile_definitions(elklog PUBLIC -DELKLOG_MULTI_THREADED_RT_LOGGING=1)
 endif()
 
+if (MSVC)
+    target_compile_options(elklog PRIVATE "/wd4996") #C4996: Deprecated warning.
+endif()
+
 target_link_libraries(elklog elklog_fifo spdlog twine::${TWINE_LIB} elk::warningSuppressor)
 
 ###########

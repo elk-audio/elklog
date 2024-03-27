@@ -167,7 +167,7 @@ public:
                                                                                  static_cast<size_t>(max_files),
                                                                                  false);
         }
-        catch ([[maybe_unused]] const std::exception&)
+        catch ([[maybe_unused]] const std::exception& ex)
         {
             return Status::FAILED_TO_START_LOGGER;
         }
