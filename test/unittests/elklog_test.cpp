@@ -112,6 +112,6 @@ TEST_F(InitLogTest, TestLoggingToSink)
     auto status = _module_under_test->initialize("./log.txt", "log_1");
     status = _module_under_test->add_log_sink(test_sink);
     std::unique_lock lk(mtx);
-    cv.wait(lk);
+    cv.wait_for(lk, std::chrono::seconds(1));
     ASSERT_TRUE(logging_success);
 }
