@@ -53,9 +53,9 @@ ELK_POP_WARNING
 #include "rtlogger.h"
 
 #if __cplusplus >= 202002L
-// newer versions of fmt library for C++20 requires a custom formatter
-// if we want to log simple enum types like error codes, see:
-// https://stackoverflow.com/a/69496952
+/* newer versions of fmt library for C++20 requires a custom formatter
+   if we want to log simple enum types like error codes, see:
+   https://stackoverflow.com/a/69496952 */
 
 template <typename EnumType>
 requires std::is_enum_v<EnumType>

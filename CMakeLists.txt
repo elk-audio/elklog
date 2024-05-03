@@ -6,17 +6,15 @@ project(elk-log LANGUAGES CXX)
 
 # Don't change version anywhere else. Everything is generated from this.
 set(ELKLOG_VERSION_MAJOR 1)
-set(ELKLOG_VERSION_MINOR 0)
+set(ELKLOG_VERSION_MINOR 1)
 set(ELKLOG_VERSION_REVISION 0)
 
-project(elk-log 
+project(elk-log
         DESCRIPTION "Logging library for Elk Audio OS"
         HOMEPAGE_URL ""
         LANGUAGES CXX
         VERSION ${ELKLOG_VERSION_MAJOR}.${ELKLOG_VERSION_MINOR}.${ELKLOG_VERSION_REVISION}
         )
-
-set(CMAKE_CXX_STANDARD 20)
 
 ###################
 #  Build options  #
