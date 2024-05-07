@@ -46,6 +46,8 @@ if (${ELKLOG_USE_INCLUDED_TWINE})
     set(TWINE_WITH_TESTS OFF CACHE BOOL "")
     add_subdirectory(twine)
 else()
+    # This still needs to be included
+    add_subdirectory(twine/elk-warning-suppressor)
     find_package(${TWINE_LIB} 0.4.0)
 endif()
 
