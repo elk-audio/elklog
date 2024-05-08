@@ -21,7 +21,8 @@ project(elk-log
 ###################
 
 option(ELKLOG_MULTI_THREADED_RT_LOGGING "Allow realtime logging from multiple threads simultaneously"  ON)
-option(ELKLOG_USE_INCLUDED_TWINE "If Elklog is included in a project that already include Twine, set this to OFF" ON)
+option(ELKLOG_USE_INCLUDED_TWINE "If Elklog is included in a project that already includes Twine, set this to OFF" ON)
+option(ELKLOG_USE_INCLUDED_WARNING_SUPPRESSOR "If Elklog is included in a project that already includes Elk Warning Suppressor, set this to OFF" OFF)
 option(ELKLOG_TWINE_STATIC "Link against static version of TWINE library" OFF)
 option(ELKLOG_WITH_UNIT_TESTS "Build and run unit tests after compilation" ON)
 option(ELKLOG_WITH_EXAMPLES "Build included examples"  ON)
@@ -45,9 +46,10 @@ endif()
 if (${ELKLOG_USE_INCLUDED_TWINE})
     set(TWINE_WITH_TESTS OFF CACHE BOOL "")
     add_subdirectory(twine)
-else()
-    # This still needs to be included
+elseif (${ELKLOG_USE_INCLUDED_WARNING_SUPPRESSOR})
     add_subdirectory(twine/elk-warning-suppressor)
+    find_package(${TWINE_LIB} 0.4.0)
+else ()
     find_package(${TWINE_LIB} 0.4.0)
 endif()
 
