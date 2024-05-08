@@ -22,8 +22,17 @@
 #define LOG_RETURN_CODE_H
 
 #include <ostream>
+
+#include "elk-warning-suppressor/warning_suppressor.hpp"
+
 #ifndef ELKLOG_DISABLE_LOGGING
+
+ELK_PUSH_WARNING
+ELK_DISABLE_SWITCH_ENUM
+ELK_DISABLE_FLOAT_EQUAL
 #include "spdlog/fmt/bundled/format.h"
+ELK_POP_WARNING
+
 #endif
 namespace elklog {
 

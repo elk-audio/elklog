@@ -34,13 +34,13 @@
 
 #include <future>
 
+#include "elk-warning-suppressor/warning_suppressor.hpp"
+
 #include "log_return_code.h"
 
 #ifndef ELKLOG_DISABLE_LOGGING
 #include "spdlog/spdlog.h"
 #include "spdlog/fmt/bundled/format.h"
-
-#include "elk-warning-suppressor/warning_suppressor.hpp"
 
 ELK_PUSH_WARNING
 ELK_DISABLE_REORDER
