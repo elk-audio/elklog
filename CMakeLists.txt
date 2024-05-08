@@ -6,24 +6,23 @@ project(elk-log LANGUAGES CXX)
 
 # Don't change version anywhere else. Everything is generated from this.
 set(ELKLOG_VERSION_MAJOR 1)
-set(ELKLOG_VERSION_MINOR 0)
+set(ELKLOG_VERSION_MINOR 1)
 set(ELKLOG_VERSION_REVISION 0)
 
-project(elk-log 
+project(elk-log
         DESCRIPTION "Logging library for Elk Audio OS"
         HOMEPAGE_URL ""
         LANGUAGES CXX
         VERSION ${ELKLOG_VERSION_MAJOR}.${ELKLOG_VERSION_MINOR}.${ELKLOG_VERSION_REVISION}
         )
 
-set(CMAKE_CXX_STANDARD 20)
-
 ###################
 #  Build options  #
 ###################
 
 option(ELKLOG_MULTI_THREADED_RT_LOGGING "Allow realtime logging from multiple threads simultaneously"  ON)
-option(ELKLOG_USE_INCLUDED_TWINE "If Elklog is included in a project that already include Twine, set this to OFF" ON)
+option(ELKLOG_USE_INCLUDED_TWINE "If Elklog is included in a project that already includes Twine, set this to OFF" ON)
+option(ELKLOG_USE_INCLUDED_WARNING_SUPPRESSOR "If Elklog is included in a project that already includes Elk Warning Suppressor, set this to OFF" OFF)
 option(ELKLOG_TWINE_STATIC "Link against static version of TWINE library" OFF)
 option(ELKLOG_WITH_UNIT_TESTS "Build and run unit tests after compilation" ON)
 option(ELKLOG_WITH_EXAMPLES "Build included examples"  ON)
@@ -47,7 +46,10 @@ endif()
 if (${ELKLOG_USE_INCLUDED_TWINE})
     set(TWINE_WITH_TESTS OFF CACHE BOOL "")
     add_subdirectory(twine)
-else()
+elseif (${ELKLOG_USE_INCLUDED_WARNING_SUPPRESSOR})
+    add_subdirectory(twine/elk-warning-suppressor)
+    find_package(${TWINE_LIB} 0.4.0)
+else ()
     find_package(${TWINE_LIB} 0.4.0)
 endif()
 
