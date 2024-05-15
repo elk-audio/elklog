@@ -45,10 +45,11 @@
 ELK_PUSH_WARNING
 ELK_DISABLE_REORDER
 #include "spdlog/sinks/rotating_file_sink.h"
-ELK_POP_WARNING
 
 #include "spdlog/async.h"
 #include "spdlog/spdlog.h"
+
+ELK_POP_WARNING
 
 #include "rtlogger.h"
 
