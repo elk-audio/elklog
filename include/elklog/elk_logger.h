@@ -34,28 +34,29 @@
 
 #include <future>
 
+#include "elk-warning-suppressor/warning_suppressor.hpp"
+
 #include "log_return_code.h"
 
 #ifndef ELKLOG_DISABLE_LOGGING
 #include "spdlog/spdlog.h"
 #include "spdlog/fmt/bundled/format.h"
 
-#include "elk-warning-suppressor/warning_suppressor.hpp"
-
 ELK_PUSH_WARNING
 ELK_DISABLE_REORDER
 #include "spdlog/sinks/rotating_file_sink.h"
-ELK_POP_WARNING
 
 #include "spdlog/async.h"
 #include "spdlog/spdlog.h"
 
+ELK_POP_WARNING
+
 #include "rtlogger.h"
 
 #if __cplusplus >= 202002L
-// newer versions of fmt library for C++20 requires a custom formatter
-// if we want to log simple enum types like error codes, see:
-// https://stackoverflow.com/a/69496952
+/* newer versions of fmt library for C++20 requires a custom formatter
+   if we want to log simple enum types like error codes, see:
+   https://stackoverflow.com/a/69496952 */
 
 template <typename EnumType>
 requires std::is_enum_v<EnumType>
@@ -167,7 +168,7 @@ public:
                                                                                  static_cast<size_t>(max_files),
                                                                                  false);
         }
-        catch (const std::exception &ex)
+        catch ([[maybe_unused]] const std::exception& ex)
         {
             return Status::FAILED_TO_START_LOGGER;
         }

@@ -23,6 +23,10 @@
 
 #include <ostream>
 
+#ifdef _MSC_VER
+#undef ERROR
+#endif
+
 namespace elklog {
 
 enum class RtLogLevel : int

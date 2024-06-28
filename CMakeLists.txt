@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.5)
 project(elk-log LANGUAGES CXX)
 #####################
 #  Project Version  #
@@ -6,10 +6,10 @@ project(elk-log LANGUAGES CXX)
 
 # Don't change version anywhere else. Everything is generated from this.
 set(ELKLOG_VERSION_MAJOR 1)
-set(ELKLOG_VERSION_MINOR 0)
+set(ELKLOG_VERSION_MINOR 1)
 set(ELKLOG_VERSION_REVISION 0)
 
-project(elk-log 
+project(elk-log
         DESCRIPTION "Logging library for Elk Audio OS"
         HOMEPAGE_URL ""
         LANGUAGES CXX
@@ -21,7 +21,9 @@ project(elk-log
 ###################
 
 option(ELKLOG_MULTI_THREADED_RT_LOGGING "Allow realtime logging from multiple threads simultaneously"  ON)
-option(ELKLOG_USE_INCLUDED_TWINE "If Elklog is included in a project that already include Twine, set this to OFF" ON)
+option(ELKLOG_USE_INCLUDED_TWINE "If Elklog is included in a project that already includes Twine, set this to OFF" ON)
+option(ELKLOG_USE_INCLUDED_WARNING_SUPPRESSOR "If Elklog is included in a project that already includes Elk Warning Suppressor, set this to OFF" OFF)
+option(ELKLOG_TWINE_STATIC "Link against static version of TWINE library" OFF)
 option(ELKLOG_WITH_UNIT_TESTS "Build and run unit tests after compilation" ON)
 option(ELKLOG_WITH_EXAMPLES "Build included examples"  ON)
 
@@ -35,11 +37,20 @@ set(ELKLOG_RT_QUEUE_SIZE 1024 CACHE STRING "Size of realtime log queue")
 
 set(TWINE_WITH_TESTS OFF CACHE BOOL "" FORCE)
 
+if (${ELKLOG_TWINE_STATIC})
+    set(TWINE_LIB twine_static)
+else()
+    set(TWINE_LIB twine)
+endif()
+
 if (${ELKLOG_USE_INCLUDED_TWINE})
     set(TWINE_WITH_TESTS OFF CACHE BOOL "")
     add_subdirectory(twine)
-else()
-    find_package(twine 0.4.0)
+elseif (${ELKLOG_USE_INCLUDED_WARNING_SUPPRESSOR})
+    add_subdirectory(twine/elk-warning-suppressor)
+    find_package(${TWINE_LIB} 0.4.0)
+else ()
+    find_package(${TWINE_LIB} 0.4.0)
 endif()
 
 add_subdirectory(third-party)
@@ -60,7 +71,11 @@ if(ELKLOG_MULTI_THREADED_RT_LOGGING)
     target_compile_definitions(elklog PUBLIC -DELKLOG_MULTI_THREADED_RT_LOGGING=1)
 endif()
 
-target_link_libraries(elklog elklog_fifo spdlog twine::twine elk::warningSuppressor)
+if (MSVC)
+    target_compile_options(elklog PRIVATE "/wd4996") #C4996: Deprecated warning.
+endif()
+
+target_link_libraries(elklog elklog_fifo spdlog twine::${TWINE_LIB} elk::warningSuppressor)
 
 ###########
 #  Tests  #
