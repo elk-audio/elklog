@@ -27,9 +27,18 @@
 #include <cstring>
 #include <cassert>
 
+#include "elk-warning-suppressor/warning_suppressor.hpp"
+
+ELK_PUSH_WARNING
+ELK_DISABLE_DEPRECATED_DECLARATIONS
+ELK_DISABLE_CONDITIONAL_EXPRESSION_IS_CONSTANT
+ELK_DISABLE_UNKNOWN_PRAGMAS
+ELK_DISABLE_DEPRECATED
 #include <spdlog/fmt/bundled/format.h>
 #include <spdlog/fmt/bundled/chrono.h>
+ELK_POP_WARNING
 
+#include "spdlog/spdlog.h"
 #include "rtloglevel.h"
 
 namespace elklog {
@@ -94,21 +103,37 @@ public:
      */
     template<typename... Args>
     void set_message(RtLogLevel level, std::chrono::nanoseconds timestamp,
-                     const char* format_str, Args&&... args)
+                     spdlog::format_string_t<Args...> format_str, Args&&... args)
     {
         _level = level;
         _timestamp = timestamp;
-        auto end = fmt::format_to_n(_buffer.data(), buffer_len - 1, format_str, args...);
+        auto end = fmt::format_to_n(_buffer.data(), buffer_len - 1, format_str, std::forward<Args>(args)...);
 
         // Add null-termination character
         *end.out = '\0';
-        _length = std::distance(_buffer.data(), end.out);
+        _length = static_cast<int>(std::distance(_buffer.data(), end.out));
     }
+
+    void set_message(RtLogLevel level, std::chrono::nanoseconds timestamp,
+                     spdlog::string_view_t msg)
+    {
+        _level = level;
+        _timestamp = timestamp;
+        // This specialization is for single string messages without need for formatting
+        // In this case we simply copy the string to the buffer without invoking fmt::format()
+        auto end = std::copy_n(msg.begin(), std::min(msg.size(), buffer_len - 1), _buffer.data());
+
+        // Add null-termination character
+        *end = '\0';
+        _length = static_cast<int>(msg.size()) + 1;
+    }
+
+
 
 private:
     RtLogLevel _level;
     std::chrono::nanoseconds _timestamp;
-    int  _length;
+    int _length;
     std::array<char, buffer_len> _buffer;
 };
 

@@ -63,7 +63,7 @@
 #ifdef ELKLOG_ENABLE_DEBUG_FILE_AND_LINE_NUM
 #define ELKLOG_LOG_DEBUG(msg, ...) elklog::Logger::public_instance->debug("{}" msg " - [@{} #{}]", ##__VA_ARGS__, __FILE__ , __LINE__)
 #else
-#define ELKLOG_LOG_DEBUG(msg, ...)         elklog::StaticLogger::logger_instance->debug("{}" msg, local_log_prefix, ##__VA_ARGS__)
+#define ELKLOG_LOG_DEBUG(msg, ...)         elklog::StaticLogger::public_instance->debug("{}" msg, local_log_prefix, ##__VA_ARGS__)
 #endif
 #define ELKLOG_LOG_INFO(msg, ...)          elklog::StaticLogger::public_instance->info("{}" msg, local_log_prefix, ##__VA_ARGS__)
 #define ELKLOG_LOG_WARNING(msg, ...)       elklog::StaticLogger::public_instance->warning("{}" msg, local_log_prefix, ##__VA_ARGS__)
@@ -79,6 +79,8 @@
 #define ELKLOG_LOG_WARNING_IF(condition, msg, ...)  if (condition) { elklog::StaticLogger::public_instance->warning("{}" msg, local_log_prefix, ##__VA_ARGS__); }
 #define ELKLOG_LOG_ERROR_IF(condition, msg, ...)    if (condition) { elklog::StaticLogger::public_instance->error("{}" msg, local_log_prefix, ##__VA_ARGS__); }
 #define ELKLOG_LOG_CRITICAL_IF(condition, msg, ...) if (condition) { elklog::StaticLogger::public_instance->critical("{}" msg, local_log_prefix, ##__VA_ARGS__); }
+
+#define ELKLOG_ADD_SINK(sink) elklog::StaticLogger::public_instance->add_log_sink(sink)
 
 namespace elklog {
 
@@ -147,6 +149,7 @@ private:
 #define ELKLOG_LOG_WARNING_IF(...)
 #define ELKLOG_LOG_ERROR_IF(...)
 #define ELKLOG_LOG_CRITICAL_IF(...)
+#define ELKLOG_ADD_SINK(...)
 
 namespace elklog {
 
@@ -158,15 +161,14 @@ public:
                                       [[maybe_unused]] const std::string& min_log_level,
                                       [[maybe_unused]] const std::chrono::seconds log_flush_interval,
                                       [[maybe_unused]] bool drop_logger_if_duplicate = false,
-                                      [[maybe_unused]] int max_files = 1))
+                                      [[maybe_unused]] int max_files = 1)
     {
         return Status::OK;
     }
 
-private:
-    Logger() = default;
+    static ElkLogger* public_instance;
 };
-
+}
 #endif
 
 #endif //STATIC_LOGGER_H

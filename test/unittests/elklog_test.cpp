@@ -1,8 +1,39 @@
+#include <condition_variable>
+#include <mutex>
+
 #include "gtest/gtest.h"
 
 #include "elklog/elk_logger.h"
 
 using namespace elklog;
+
+using LoggerCallback = std::function<void(spdlog::level::level_enum level,
+                                          const std::string& payload,
+                                          const std::string& logger_name)>;
+class TestingSink : public spdlog::sinks::base_sink<spdlog::details::null_mutex>
+{
+public:
+    TestingSink(LoggerCallback logging_cb = nullptr):
+        _logging_cb(logging_cb)
+    {}
+
+protected:
+    void sink_it_(const spdlog::details::log_msg& msg) override
+    {
+        const std::string payload(msg.payload.begin(), msg.payload.end());
+        const std::string logger_name(msg.logger_name.begin(), msg.logger_name.end());
+        if (_logging_cb == nullptr)
+        {
+            return;
+        }
+        _logging_cb(msg.level, payload, logger_name);
+    }
+
+    void flush_() override {};
+
+private:
+    LoggerCallback _logging_cb;
+};
 
 // A more complex test case where tests can be grouped
 // And setup and teardown functions added.
@@ -38,4 +69,49 @@ TEST_F(InitLogTest, TestCreation)
     ElkLogger logger_3("debbbug");
     status = logger_3.initialize("log_3.txt", "log_1");
     ASSERT_EQ(Status::INVALID_LOG_LEVEL, status);
+}
+
+TEST_F(InitLogTest, TestCustomTypes)
+{
+    auto status = _module_under_test->initialize("./log.txt", "logger");
+    ASSERT_EQ(Status::OK, status);
+
+    _module_under_test->info("Logging a custom type: {}", status);
+}
+
+TEST_F(InitLogTest, TestAddingSinkWithoutInit)
+{
+    auto test_sink = std::make_shared<TestingSink>();
+    auto status = _module_under_test->add_log_sink(test_sink);
+    ASSERT_EQ(Status::LOGGER_NOT_INITIALIZED, status);
+}
+
+TEST_F(InitLogTest, TestAddingSinkWithInit)
+{
+    auto test_sink = std::make_shared<TestingSink>();
+    auto status = _module_under_test->initialize("./log.txt", "log_1");
+    status = _module_under_test->add_log_sink(test_sink);
+    ASSERT_EQ(Status::OK, status);
+}
+
+TEST_F(InitLogTest, TestLoggingToSink)
+{
+    bool logging_success = false;
+    std::mutex mtx;
+    std::condition_variable cv;
+    auto test_sink = std::make_shared<TestingSink>([&logging_success, &mtx, &cv]
+    (spdlog::level::level_enum level, const std::string& payload, const std::string& logger_name)
+    {
+        std::scoped_lock lk(mtx);
+        EXPECT_EQ(spdlog::level::info, level);
+        EXPECT_EQ("Started logger: log_1.", payload);
+        EXPECT_EQ("log_1", logger_name);
+        logging_success = true;
+        cv.notify_all();
+    });
+    auto status = _module_under_test->initialize("./log.txt", "log_1");
+    status = _module_under_test->add_log_sink(test_sink);
+    std::unique_lock lk(mtx);
+    cv.wait_for(lk, std::chrono::seconds(1));
+    ASSERT_TRUE(logging_success);
 }

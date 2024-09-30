@@ -34,20 +34,42 @@
 
 #include <future>
 
+#include "elk-warning-suppressor/warning_suppressor.hpp"
+
 #include "log_return_code.h"
 
 #ifndef ELKLOG_DISABLE_LOGGING
 #include "spdlog/spdlog.h"
+#include "spdlog/fmt/bundled/format.h"
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wreorder"
+ELK_PUSH_WARNING
+ELK_DISABLE_REORDER
 #include "spdlog/sinks/rotating_file_sink.h"
-#pragma GCC diagnostic pop
 
 #include "spdlog/async.h"
 #include "spdlog/spdlog.h"
 
+ELK_POP_WARNING
+
 #include "rtlogger.h"
+
+#if __cplusplus >= 202002L
+/* newer versions of fmt library for C++20 requires a custom formatter
+   if we want to log simple enum types like error codes, see:
+   https://stackoverflow.com/a/69496952 */
+
+template <typename EnumType>
+requires std::is_enum_v<EnumType>
+struct fmt::formatter<EnumType> : fmt::formatter<std::underlying_type_t<EnumType>>
+{
+    // Forwards the formatting by casting the enum to it's underlying type
+    auto format(const EnumType& enumValue, format_context& ctx) const
+    {
+        return fmt::formatter<std::underlying_type_t<EnumType>>::format(
+            static_cast<std::underlying_type_t<EnumType>>(enumValue), ctx);
+    }
+};
+#endif // __cplusplus >= 202002L
 
 namespace elklog {
 
@@ -55,6 +77,7 @@ constexpr int RTLOG_MESSAGE_SIZE = ELKLOG_RT_MESSAGE_SIZE;
 constexpr int RTLOG_QUEUE_SIZE = ELKLOG_RT_QUEUE_SIZE;
 constexpr int MAX_LOG_FILE_SIZE = ELKLOG_FILE_SIZE;   // In bytes
 constexpr auto RT_CONSUMER_POLL_PERIOD = std::chrono::milliseconds(50);
+
 
 class ElkLogger
 {
@@ -74,10 +97,10 @@ public:
      * @param min_log_level Minimum logging level (debug, info, warning, error)
      * @param logger_type Choose between TYPE::TEXT (default), and JSON.
      */
-    ElkLogger(const std::string& min_log_level,
-              Type logger_type = Type::TEXT) :
-             _min_log_level(min_log_level),
-             _type(logger_type)
+    explicit ElkLogger(const std::string& min_log_level,
+                       Type logger_type = Type::TEXT) :
+                       _min_log_level(min_log_level),
+                       _type(logger_type)
     {
         _rt_logger = std::make_unique<RtLogger<RTLOG_MESSAGE_SIZE, RTLOG_QUEUE_SIZE>>(RT_CONSUMER_POLL_PERIOD,
                 std::bind(&ElkLogger::_rt_logger_callback, this, std::placeholders::_1),
@@ -100,7 +123,7 @@ public:
      *
      * @param log_file_path Log file (should be unique for each instance)
      *
-     * @return Error code. LogErrorCode::OK if all good.
+     * @return Error code. elklog::Status::OK if all good.
      *         Can be passed straight to << stream operators
      *         for a human-readable output error string.
      */
@@ -110,30 +133,21 @@ public:
                       bool drop_logger_if_duplicate = false,
                       int max_files = 1)
     {
-        std::map<std::string, spdlog::level::level_enum> level_map;
-        level_map["debug"] = spdlog::level::debug;
-        level_map["info"] = spdlog::level::info;
-        level_map["warning"] = spdlog::level::warn;
-        level_map["error"] = spdlog::level::err;
-        level_map["critical"] = spdlog::level::critical;
-
         _log_file_path = log_file_path;
 
-        std::string log_level_lowercase = _min_log_level;
-        std::transform(_min_log_level.begin(), _min_log_level.end(), log_level_lowercase.begin(), ::tolower);
+        Status status = set_log_level(_min_log_level);
+
+        if (status != Status::OK)
+        {
+            return status;
+        }
 
         if (flush_interval.count() > 0)
         {
             spdlog::flush_every(std::chrono::seconds(flush_interval));
         }
 
-        if (level_map.count(log_level_lowercase) <= 0)
-        {
-            return Status::INVALID_LOG_LEVEL;
-        }
-        auto log_level = level_map[log_level_lowercase];
-        spdlog::set_level(log_level);
-        spdlog::flush_on(log_level);
+        spdlog::flush_on(spdlog::level::err);
 
         // Check for already registered logger
         auto possible_logger = spdlog::get(logger_name);
@@ -151,10 +165,10 @@ public:
             _logger_instance = spdlog::rotating_logger_mt<spdlog::async_factory>(logger_name,
                                                                                  log_file_path,
                                                                                  MAX_LOG_FILE_SIZE,
-                                                                                 max_files,
+                                                                                 static_cast<size_t>(max_files),
                                                                                  false);
         }
-        catch (const std::exception &ex)
+        catch ([[maybe_unused]] const std::exception& ex)
         {
             return Status::FAILED_TO_START_LOGGER;
         }
@@ -190,71 +204,204 @@ public:
         return Status::OK;
     }
 
-    template<typename... Args>
-    void debug(const char* format_str, Args&&... args)
+    /**
+     * @brief Append a custom spdlog sink to the logger. This allows for logging to multple
+     * sources from the same logging call. This MUST be called after the logger has been
+     * initialized.
+     *
+     * @param sink The sink to add.
+     * @return Status
+     */
+    Status add_log_sink(spdlog::sink_ptr sink)
     {
-        if (_closed == true) return;
-
-        if (twine::is_current_thread_realtime())
+        if (_logger_instance == nullptr)
         {
-            _rt_logger->log_debug(format_str, args...);
+            return Status::LOGGER_NOT_INITIALIZED;
         }
-        else
+
+        _logger_instance->sinks().push_back(sink);
+        return Status::OK;
+    }
+
+    Status set_log_level(const std::string& min_log_level)
+    {
+        _rt_logger->set_log_level(min_log_level);
+
+        std::map<std::string, spdlog::level::level_enum> level_map;
+        level_map["debug"] = spdlog::level::debug;
+        level_map["info"] = spdlog::level::info;
+        level_map["warning"] = spdlog::level::warn;
+        level_map["error"] = spdlog::level::err;
+        level_map["critical"] = spdlog::level::critical;
+
+        _min_log_level = min_log_level;
+
+        std::string log_level_lowercase = _min_log_level;
+        std::transform(_min_log_level.begin(), _min_log_level.end(), log_level_lowercase.begin(), ::tolower);
+
+        if (level_map.count(log_level_lowercase) <= 0)
         {
-            _logger_instance->debug(format_str, args...);
+            return Status::INVALID_LOG_LEVEL;
+        }
+
+        auto log_level = level_map[log_level_lowercase];
+        spdlog::set_level(log_level);
+
+        return Status::OK;
+    }
+
+    template<typename... Args>
+    void debug(spdlog::format_string_t<Args...> format_str, Args&&... args)
+    {
+        if (!_closed)
+        {
+            if (twine::is_current_thread_realtime())
+            {
+                _rt_logger->log_debug(format_str, std::forward<Args>(args)...);
+            }
+            else
+            {
+                _logger_instance->debug(format_str, std::forward<Args>(args)...);
+            }
+        }
+    }
+
+    void debug(spdlog::string_view_t msg)
+    {
+        if (!_closed)
+        {
+            if (twine::is_current_thread_realtime())
+            {
+                _rt_logger->log_debug(msg);
+            }
+            else
+            {
+                _logger_instance->debug(msg);
+            }
         }
     }
 
     template<typename... Args>
-    void info(const char* format_str, Args&&... args)
+    void info(spdlog::format_string_t<Args...> format_str, Args&&... args)
     {
-        if (_closed == true) return;
-
-        if (twine::is_current_thread_realtime())
+        if (!_closed)
         {
-            _rt_logger->log_info(format_str, args...);
+            if (twine::is_current_thread_realtime())
+            {
+                _rt_logger->log_info(format_str, std::forward<Args>(args)...);
+            }
+            else
+            {
+                _logger_instance->info(format_str, std::forward<Args>(args)...);
+            }
         }
-        else
+    }
+
+    void info(spdlog::string_view_t msg)
+    {
+        if (!_closed)
         {
-            _logger_instance->info(format_str, args...);
+            if (twine::is_current_thread_realtime())
+            {
+                _rt_logger->log_info(msg);
+            }
+            else
+            {
+                _logger_instance->info(msg);
+            }
         }
     }
 
     template<typename... Args>
-    void info_rt(const char* format_str, Args&&... args)
+    void warning(spdlog::format_string_t<Args...> format_str, Args&&... args)
     {
-        if (_closed == true) return;
-
-        _rt_logger->log_info(format_str, args...);
-    }
-
-    template<typename... Args>
-    void warning(const char* format_str, Args&&... args)
-    {
-        if (_closed == true) return;
-
-        if (twine::is_current_thread_realtime())
+        if (!_closed)
         {
-            _rt_logger->log_warning(format_str, args...);
-        }
-        else
-        {
-            _logger_instance->warn(format_str, args...);
+            if (twine::is_current_thread_realtime())
+            {
+                _rt_logger->log_warning(format_str, std::forward<Args>(args)...);
+            }
+            else
+            {
+                _logger_instance->warn(format_str, std::forward<Args>(args)...);
+            }
         }
     }
 
-    template<typename... Args>
-    void error(const char* format_str, Args&&... args)
+    void warning(spdlog::string_view_t msg)
     {
-        if (_closed == true) return;
-
-        if (twine::is_current_thread_realtime())
+        if (!_closed)
         {
-            _rt_logger->log_error(format_str, args...);
+            if (twine::is_current_thread_realtime())
+            {
+                _rt_logger->log_warning(msg);
+            }
+            else
+            {
+                _logger_instance->warn(msg);
+            }
         }
-        else
+    }
+
+    template<typename... Args>
+    void error(spdlog::format_string_t<Args...> format_str, Args&&... args)
+    {
+        if (!_closed)
         {
-            _logger_instance->error(format_str, args...);
+            if (twine::is_current_thread_realtime())
+            {
+                _rt_logger->log_error(format_str, std::forward<Args>(args)...);
+            }
+            else
+            {
+                _logger_instance->error(format_str, std::forward<Args>(args)...);
+            }
+        }
+    }
+
+    void error(spdlog::string_view_t msg)
+    {
+        if (!_closed)
+        {
+            if (twine::is_current_thread_realtime())
+            {
+                _rt_logger->log_error(msg);
+            }
+            else
+            {
+                _logger_instance->error(msg);
+            }
+        }
+    }
+
+    template<typename... Args>
+    void critical(spdlog::format_string_t<Args...> format_str, Args&&... args)
+    {
+        if (!_closed)
+        {
+            if (twine::is_current_thread_realtime())
+            {
+                _rt_logger->log_error(format_str, std::forward<Args>(args)...);
+            }
+            else
+            {
+                _logger_instance->critical(format_str, std::forward<Args>(args)...);
+            }
+        }
+    }
+
+    void critical(spdlog::string_view_t msg)
+    {
+        if (!_closed)
+        {
+            if (twine::is_current_thread_realtime())
+            {
+                _rt_logger->log_error(msg);
+            }
+            else
+            {
+                _logger_instance->critical(msg);
+            }
         }
     }
 
@@ -311,7 +458,7 @@ private:
 
         switch (msg.level())
         {
-        case RtLogLevel::DEBUG:
+        case RtLogLevel::DBG:
             _logger_instance->debug("{}", msg.message());
             break;
 
@@ -355,17 +502,25 @@ public:
         JSON
     };
 
-    ElkLogger([[maybe_unused]] const std::string& min_log_level,
-              [[maybe_unused]] Type logger_type = Type::TEXT)
+    explicit ElkLogger([[maybe_unused]] const std::string& min_log_level,
+                       [[maybe_unused]] Type logger_type = Type::TEXT)
     {}
 
-    virtual ~ElkLogger() = default;
+    virtual ~ElkLogger()
+    {
+        _closed_promise.set_value(_closed);
+    }
 
     Status initialize([[maybe_unused]] const std::string& log_file_path,
                       [[maybe_unused]] const std::string& logger_name = "\"elk_logger",
                       [[maybe_unused]] std::chrono::seconds flush_interval = std::chrono::seconds(0),
                       [[maybe_unused]] bool drop_logger_if_duplicate = false,
                       [[maybe_unused]] int max_files = 1)
+    {
+        return Status::OK;
+    }
+
+    Status set_log_level([[maybe_unused]] const std::string& min_log_level)
     {
         return Status::OK;
     }
@@ -385,6 +540,30 @@ public:
     template<typename... Args>
     void error(const char* /*format_str*/, Args&&... /*args*/)
     {}
+
+    void close_log()
+    {
+        _closed = true;
+    }
+
+    const std::string& min_log_level()
+    {
+        return _dummy;
+    }
+
+    const std::string& log_file_path()
+    {
+        return _dummy;
+    }
+
+    std::promise<bool>& closed_promise()
+    {
+        return _closed_promise;
+    }
+
+    std::string _dummy;
+    bool _closed{false};
+    std::promise<bool> _closed_promise;
 };
 
 } // namespace elklog
