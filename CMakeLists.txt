@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.28)
 project(elk-log LANGUAGES CXX)
 #####################
 #  Project Version  #
@@ -7,7 +7,7 @@ project(elk-log LANGUAGES CXX)
 # Don't change version anywhere else. Everything is generated from this.
 set(ELKLOG_VERSION_MAJOR 1)
 set(ELKLOG_VERSION_MINOR 1)
-set(ELKLOG_VERSION_REVISION 0)
+set(ELKLOG_VERSION_REVISION 1)
 
 project(elk-log
         DESCRIPTION "Logging library for Elk Audio OS"

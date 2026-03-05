@@ -1,3 +1,7 @@
+## 1.1.1
+  * Updated Twine
+  * Bumped required CMake version
+
 ## 1.1.0
 New Features:
   * Windows support
