@@ -456,6 +456,11 @@ private:
     {
         if (_closed) return;
 
+        // The RT consumer thread starts in the constructor, before initialize()
+        // creates _logger_instance, and stays running even if initialize() failed
+        // (e.g. a duplicate logger name). Never dereference a null logger here.
+        if (_logger_instance == nullptr) return;
+
         switch (msg.level())
         {
         case RtLogLevel::DBG:
