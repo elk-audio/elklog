@@ -1,3 +1,6 @@
+## Next
+  * Set max file size at runtime 
+
 ## 1.1.1
   * Updated Twine
   * Bumped required CMake version

@@ -27,7 +27,6 @@ option(ELKLOG_TWINE_STATIC "Link against static version of TWINE library" OFF)
 option(ELKLOG_WITH_UNIT_TESTS "Build and run unit tests after compilation" ON)
 option(ELKLOG_WITH_EXAMPLES "Build included examples"  ON)
 
-set(ELKLOG_FILE_SIZE 10000000 CACHE STRING "Maximum log file size in bytes")
 set(ELKLOG_RT_MESSAGE_SIZE 2048 CACHE STRING "Maximum length of log messages from realtime threads")
 set(ELKLOG_RT_QUEUE_SIZE 1024 CACHE STRING "Size of realtime log queue")
 

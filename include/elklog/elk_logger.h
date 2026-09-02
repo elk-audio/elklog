@@ -75,7 +75,7 @@ namespace elklog {
 
 constexpr int RTLOG_MESSAGE_SIZE = ELKLOG_RT_MESSAGE_SIZE;
 constexpr int RTLOG_QUEUE_SIZE = ELKLOG_RT_QUEUE_SIZE;
-constexpr int MAX_LOG_FILE_SIZE = ELKLOG_FILE_SIZE;   // In bytes
+constexpr int DEFAULT_LOG_FILE_SIZE = 10485760;   // In bytes
 constexpr auto RT_CONSUMER_POLL_PERIOD = std::chrono::milliseconds(50);
 
 
@@ -130,6 +130,7 @@ public:
     Status initialize(const std::string& log_file_path,
                       const std::string& logger_name,
                       std::chrono::seconds flush_interval = std::chrono::seconds(0),
+                      int max_file_size = DEFAULT_LOG_FILE_SIZE,
                       bool drop_logger_if_duplicate = false,
                       int max_files = 1)
     {
@@ -164,7 +165,7 @@ public:
         {
             _logger_instance = spdlog::rotating_logger_mt<spdlog::async_factory>(logger_name,
                                                                                  log_file_path,
-                                                                                 MAX_LOG_FILE_SIZE,
+                                                                                 max_file_size,
                                                                                  static_cast<size_t>(max_files),
                                                                                  false);
         }
@@ -519,6 +520,7 @@ public:
     Status initialize([[maybe_unused]] const std::string& log_file_path,
                       [[maybe_unused]] const std::string& logger_name = "\"elk_logger",
                       [[maybe_unused]] std::chrono::seconds flush_interval = std::chrono::seconds(0),
+                      [[maybe_unused]] int max_file_size = 0,
                       [[maybe_unused]] bool drop_logger_if_duplicate = false,
                       [[maybe_unused]] int max_files = 1)
     {
