@@ -1,5 +1,6 @@
-## Next
+## 1.1.2
   * Set max file size at runtime 
+  * Updated spdlog to 1.17.0
 
 ## 1.1.1
   * Updated Twine
