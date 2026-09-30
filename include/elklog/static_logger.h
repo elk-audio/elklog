@@ -94,10 +94,12 @@ public:
      * @param file_name Name of file used to append logs (without extension)
      * @param logger_name Internal name of the logger
      * @param min_log_level Minimum logging level, one of ('debug', 'info', 'warning', 'error', 'critical')
+     * @param log_flush_interval Forces a flush every n seconds, no periodic flush if set to 0
+     * @param max_file_size The maximum file size before starting a new log file
      * @param logger_type Choose between TYPE::TEXT (default), and JSON.
-     * @param flush_interval Forces a flush every n seconds, no periodic flush if set to 0
      * @param drop_logger_if_duplicate If another logger instance is active with the same name, drop
      *                                 that before creating a new one
+     * @param max_files The maximum number of log files to store
      *
      * @returns Error code, use ELKLOG_LOG_ERROR_MESSAGES to retrieve the message
      *
@@ -106,6 +108,7 @@ public:
                                       const std::string& logger_name,
                                       const std::string& min_log_level,
                                       std::chrono::seconds log_flush_interval = std::chrono::seconds(0),
+                                      int max_file_size = DEFAULT_LOG_FILE_SIZE,
                                       ElkLogger::Type logger_type = ElkLogger::Type::TEXT,
                                       bool drop_logger_if_duplicate = false,
                                       int max_files = 1)
@@ -118,7 +121,12 @@ public:
         [[maybe_unused]] auto level = spdlog::get_level();
         static std::shared_ptr<ElkLogger> internal_instance;
         internal_instance = std::make_shared<ElkLogger>(min_log_level, logger_type);
-        auto res = internal_instance->initialize(file_name, logger_name, log_flush_interval, drop_logger_if_duplicate, max_files);
+        auto res = internal_instance->initialize(file_name,
+                                                 logger_name,
+                                                 log_flush_interval,
+                                                 max_file_size,
+                                                 drop_logger_if_duplicate,
+                                                 max_files);
 
         if (res == Status::OK)
         {
@@ -160,6 +168,8 @@ public:
                                       [[maybe_unused]] const std::string& logger_name,
                                       [[maybe_unused]] const std::string& min_log_level,
                                       [[maybe_unused]] const std::chrono::seconds log_flush_interval,
+                                      [[maybe_unused]] int max_file_size = 0,
+                                      [[maybe_unused]] ElkLogger::Type logger_type = ElkLogger::Type::TEXT,
                                       [[maybe_unused]] bool drop_logger_if_duplicate = false,
                                       [[maybe_unused]] int max_files = 1)
     {
